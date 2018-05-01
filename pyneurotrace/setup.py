@@ -13,6 +13,10 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
+with open('requirements.txt', 'r') as f:
+    required = f.read().splitlines()
+    print (required)
+
 # Get the long description from the README file
 # with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     # long_description = f.read()
@@ -132,7 +136,12 @@ setup(
     #
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    # install_requires=['peppercorn'],  # Optional
+    install_requires=required,  # Optional
+
+
+    dependency_links = [
+        "git+https://github.com/j-friedrich/OASIS.git",
+    ]
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
