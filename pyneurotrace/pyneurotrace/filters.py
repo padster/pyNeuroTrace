@@ -10,6 +10,7 @@ def oasisSmooth(data):
     def _singleRowOasis(samples):
         clean, _, _, _, _ = oasisDeconvolve(samples)
         return clean
+    return _forEachTimeseries(data, _singleRowOasis)
 
 """
 Okada, M., Ishikawa, T., & Ikegaya, Y. (2016).
