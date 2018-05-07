@@ -1,5 +1,5 @@
-import numpy as np
 from oasis.functions import deconvolve as oasisDeconvolve
+import numpy as np
 
 """
 Friedrich, J., Zhou, P., & Paninski, L. (2017).
@@ -32,12 +32,39 @@ In vivo two-photon imaging of sensory-evoked dendritic calcium signals in cortic
 Nature protocols, 6(1), 28.
 """
 def deltaFOverF0(data, hz, t0=0.2, t1=0.75, t2=3.0):
+    t0ratio = None if t0 is None else np.exp(-1 / (t0 * hz))
+    t1samples, t2samples = round(t1 * hz), round(t2*hz)
+
     def _singeRowDeltaFOverF(samples):
-        # TODO - proper code
-        f0 = np.mean(samples)
-        return (samples - f0) / f0
+        fBar = _windowFunc(np.mean, samples, t1samples, mid=True)
+        f0 = _windowFunc(np.min, fBar, t2samples)
+        result = (samples - f0) / f0
+        if t0ratio is not None:
+            result = _ewma(result, t0ratio)
+        return result
     return _forEachTimeseries(data, _singeRowDeltaFOverF)
 
+
+def _windowFunc(f, x, window, mid=False):
+    n = len(x)
+    startOffset = (window - 1) // 2 if mid else window - 1
+
+    result = np.zeros(x.shape)
+    for i in range(n):
+        startIdx = i - startOffset
+        endIdx = startIdx + window
+        startIdx, endIdx = max(0, startIdx), min(endIdx, n)
+        result[i] = f(x[startIdx:endIdx])
+    return result
+
+def _ewma(x, ratio):
+    result = np.zeros(x.shape)
+    weightedSum, sumOfWeights = 0.0, 0.0
+    for i in range(len(x)):
+        weightedSum = ratio * weightedSum + x[i]
+        sumOfWeights = ratio * sumOfWeights + 1.0
+        result[i] = weightedSum / sumOfWeights
+    return result
 
 # Input is either 1d (timeseries), 2d (each row is a timeseries) or 3d (x, y, timeseries)
 def _forEachTimeseries(data, func):
