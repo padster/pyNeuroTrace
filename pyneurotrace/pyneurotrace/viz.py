@@ -42,7 +42,7 @@ def _plotStimOnto(ax, stim, xLim):
     for stimStart in stim[:, 0]:
         ax.axvline(x=stimStart, c='y')
 
-def plotIntensity(data, hz, branches=None, stim=None):
+def plotIntensity(data, hz, branches=None, stim=None, title=None):
     fig, aBranches, aData, aStim, aBlank = None, None, None, None, None
     if branches is None and stim is None:
         fig, (aData) = plt.subplots(1, 1)
@@ -52,6 +52,7 @@ def plotIntensity(data, hz, branches=None, stim=None):
         fig, (aData, aStim) = plt.subplots(2, 1, gridspec_kw = {'height_ratios':[8, 1]})
     else:
         fig, ((aBranches, aData), (aBlank, aStim)) = plt.subplots(2, 2, gridspec_kw = {'height_ratios':[8, 1], 'width_ratios':[1, 20]})
+    fig.suptitle(title)
     fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD)
 
     _plotIntensityOnto(aData, data)
@@ -73,12 +74,13 @@ def plotIntensity(data, hz, branches=None, stim=None):
         aBlank.get_xaxis().set_visible(False)
         aBlank.get_yaxis().set_visible(False)
 
-def plotLine(data, hz, stim=None, labels=None, colors=None):
+def plotLine(data, hz, stim=None, labels=None, colors=None, title=None):
     fig, aData, aStim = None, None, None
     if stim is None:
         fig, (aData) = plt.subplots(1, 1) # gridspec_kw = {'width_ratios':[3, 1]})
     else:
         fig, (aData, aStim) = plt.subplots(2, 1, gridspec_kw = {'height_ratios':[8, 1]})
+    fig.suptitle(title)
     fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD)
 
     _plotLineOnto(aData, data, labels, colors)

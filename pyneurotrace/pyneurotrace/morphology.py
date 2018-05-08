@@ -29,7 +29,7 @@ def _fillBranchIDMap(nodeID, nodes, branchAt, result, splitAtBranch):
     result[nodeID] = branchAt
     lastBranchUsed = branchAt
     if len(nodes[nodeID]['children']) > 0:
-        if len(nodes[nodeID]['children']) == 1 or not splitAtBranch:
+        if len(nodes[nodeID]['children']) == 1 or not splitAtBranch or nodes[nodeID]['type'] == 'Root':
             lastBranchUsed -= 1
         for child in nodes[nodeID]['children']:
             lastBranchUsed = _fillBranchIDMap(child['id'], nodes, lastBranchUsed + 1, result, splitAtBranch)
