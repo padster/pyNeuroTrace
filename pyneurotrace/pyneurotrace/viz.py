@@ -15,16 +15,20 @@ def _plotIntensityOnto(ax, data):
         return
     ax.imshow(data, cmap='hot', interpolation='nearest', aspect='auto', origin='lower')
 
-def _plotLineOnto(ax, data, labels, colors):
+def _plotLineOnto(ax, data, labels, colors, split):
     ax.patch.set_facecolor('black')
     if isinstance(data, list):
         assert isinstance(labels, list) and isinstance(colors, list)
         assert len(data) == len(labels) and len(data) == len(colors)
-        for d, l, c in zip(data, labels, colors):
-            ax.plot(d.T, label=l, c=c, linewidth=0.5)
+        perLineOffset = np.max(data) - np.min(data) if split else 0.0
+        for i, (d, l, c) in enumerate(zip(data, labels, colors)):
+            ax.plot(d.T + i * perLineOffset, label=l, c=c, linewidth=0.5)
             nSamples = d.shape[0]
         ax.legend()
     else:
+        perLineOffset = np.max(data) - np.min(data) if split else 0.0
+        for i in range(data.shape[0]):
+            data[i] += i * perLineOffset
         ax.plot(data.T)
         nSamples = data.shape[1]
     ax.set_xlim((0, nSamples))
@@ -75,7 +79,7 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None):
         aBlank.get_xaxis().set_visible(False)
         aBlank.get_yaxis().set_visible(False)
 
-def plotLine(data, hz, stim=None, labels=None, colors=None, title=None):
+def plotLine(data, hz, stim=None, labels=None, colors=None, title=None, split=True):
     fig, aData, aStim = None, None, None
     if stim is None:
         fig, (aData) = plt.subplots(1, 1) # gridspec_kw = {'width_ratios':[3, 1]})
@@ -84,7 +88,7 @@ def plotLine(data, hz, stim=None, labels=None, colors=None, title=None):
     fig.suptitle(title)
     fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD)
 
-    _plotLineOnto(aData, data, labels, colors)
+    _plotLineOnto(aData, data, labels, colors, split)
     if aStim is not None:
         aData.get_xaxis().set_visible(False)
         aStim.get_yaxis().set_visible(False)
@@ -94,6 +98,8 @@ def plotLine(data, hz, stim=None, labels=None, colors=None, title=None):
         _plotStimOnto(aStim, stim, xLim=aData.get_xlim())
     else:
         aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+    if split:
+        aData.get_yaxis().set_visible(False)
 
 def debugPlotPlanar(nodeXYZ, branchIDs):
     fig, ax = plt.subplots(1, 1)
