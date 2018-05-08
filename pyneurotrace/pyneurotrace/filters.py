@@ -48,7 +48,6 @@ def deltaFOverF0(data, hz, t0=0.2, t1=0.75, t2=3.0):
 def _windowFunc(f, x, window, mid=False):
     n = len(x)
     startOffset = (window - 1) // 2 if mid else window - 1
-
     result = np.zeros(x.shape)
     for i in range(n):
         startIdx = i - startOffset
