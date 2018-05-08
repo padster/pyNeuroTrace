@@ -65,6 +65,7 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None):
         aData.get_xaxis().set_visible(False)
         aStim.get_yaxis().set_visible(False)
         aStim.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+        aStim.set_xticks(stim[:, 0])
         fig.subplots_adjust(hspace=0.0)
         _plotStimOnto(aStim, stim, xLim=aData.get_xlim())
     else:
@@ -88,6 +89,7 @@ def plotLine(data, hz, stim=None, labels=None, colors=None, title=None):
         aData.get_xaxis().set_visible(False)
         aStim.get_yaxis().set_visible(False)
         aStim.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+        aStim.set_xticks(stim[:, 0])
         fig.subplots_adjust(hspace=0.0)
         _plotStimOnto(aStim, stim, xLim=aData.get_xlim())
     else:
