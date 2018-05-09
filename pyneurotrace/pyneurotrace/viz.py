@@ -118,7 +118,7 @@ def debugPlotPlanar(nodeXYZ, branchIDs):
 
 CIRCLES_HACK = []
 def planarAnimation(nodeXYZ, traceData, hz):
-    DOWNSAMPLE = 10
+    DOWNSAMPLE = 5
     hz = hz // DOWNSAMPLE
     traceData = traceData[:, ::DOWNSAMPLE]
     # lineCollection = mc.LineCollection(lines, colors=[(0,0,0,1)], linewidths=1)
@@ -140,12 +140,14 @@ def planarAnimation(nodeXYZ, traceData, hz):
     ax.set_xlim(np.min(xs) - PAD, np.max(xs) + PAD)
     ax.set_ylim(np.min(ys) - PAD, np.max(ys) + PAD)
 
+    hotMap = plt.get_cmap('hot')
+
     def _frameCircles(frameValues):
         circles = []
         # print (frameValues)
         for i in range(nNodes):
             v = frameValues[i]
-            patch = patches.Circle(xys[i], radius=0.005, color=(0, v, 0, 1))
+            patch = patches.Circle(xys[i], radius=0.005, color=hotMap(v))
             circles.append(patch)
         return circles
 
@@ -153,13 +155,12 @@ def planarAnimation(nodeXYZ, traceData, hz):
         global CIRCLES_HACK
         if (i % 200 == 0):
             print ("%d/%d" % (i, traceData.shape[1]))
-        # global CIRCLES_HACK
         for circle in CIRCLES_HACK:
             circle.remove()
         CIRCLES_HACK = _frameCircles(traceData[:, i])
         for circle in CIRCLES_HACK:
             ax.add_patch(circle)
-        ax.set_xlabel("%d/%d" % (i, traceData.shape[1]))
+        ax.set_xlabel("%.2fs / %.2fs" % (i / hz, traceData.shape[1] / hz))
         return tuple()
 
     anim = FuncAnimation(
