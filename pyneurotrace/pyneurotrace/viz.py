@@ -2,6 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import FuncFormatter
 
+import matplotlib.patches as patches
+from matplotlib import collections as mc
+from matplotlib.animation import FuncAnimation
+import matplotlib.animation as animation
+
+
 PAD = 0.05
 
 # TODO: Move into a reusable place:
@@ -108,6 +114,71 @@ def debugPlotPlanar(nodeXYZ, branchIDs):
         x = nodeXYZ[branchIDs == branch, 0] * 10000
         y = nodeXYZ[branchIDs == branch, 1] * 10000
         ax.scatter(x, y, color=LINE_COLORS[branch % LINE_COLOR_COUNT])
+
+
+CIRCLES_HACK = []
+def planarAnimation(nodeXYZ, traceData, hz):
+    DOWNSAMPLE = 10
+    hz = hz // DOWNSAMPLE
+    traceData = traceData[:, ::DOWNSAMPLE]
+    # lineCollection = mc.LineCollection(lines, colors=[(0,0,0,1)], linewidths=1)
+    fig, ax = plt.subplots(figsize=(13, 6))
+    # ax.add_collection(lineCollection)
+    # ax.autoscale()
+    # ax.margins(0.1)
+
+
+    nNodes = nodeXYZ.shape[0]
+    assert nNodes == traceData.shape[0]
+    xys = [(nodeXYZ[i, 0] * 10000, nodeXYZ[i, 1] * 10000) for i in range(nNodes)]
+    print (xys)
+    traceData = traceData.clip(min=0)
+    traceData = traceData / np.max(traceData)
+
+    PAD = 0.02
+    xs, ys = zip(*xys)
+    ax.set_xlim(np.min(xs) - PAD, np.max(xs) + PAD)
+    ax.set_ylim(np.min(ys) - PAD, np.max(ys) + PAD)
+
+    def _frameCircles(frameValues):
+        circles = []
+        # print (frameValues)
+        for i in range(nNodes):
+            v = frameValues[i]
+            patch = patches.Circle(xys[i], radius=0.005, color=(0, v, 0, 1))
+            circles.append(patch)
+        return circles
+
+    def _animFrame(i):
+        global CIRCLES_HACK
+        if (i % 200 == 0):
+            print ("%d/%d" % (i, traceData.shape[1]))
+        # global CIRCLES_HACK
+        for circle in CIRCLES_HACK:
+            circle.remove()
+        CIRCLES_HACK = _frameCircles(traceData[:, i])
+        for circle in CIRCLES_HACK:
+            ax.add_patch(circle)
+        ax.set_xlabel("%d/%d" % (i, traceData.shape[1]))
+        return tuple()
+
+    anim = FuncAnimation(
+        fig,
+        _animFrame,
+        frames=traceData.shape[1],
+        interval=1,
+        blit=True,
+        repeat=False
+    )
+    print ("Saving...")
+    # Set up formatting for the movie files
+    Writer = animation.writers['ffmpeg']
+    writer = Writer(fps=hz, metadata=dict(artist='Me'), bitrate=1800)
+    anim.save("fire.mp4", writer=writer)
+    # anim.save("fire.gif", dpi=80, writer='imagemagick')
+    print ("Saved!")
+    # plt.show()
+    return None
 
 # Debug helper to print tree strucuture to commandline:
 def printTree(nodeAt, nodes, indent=''):
