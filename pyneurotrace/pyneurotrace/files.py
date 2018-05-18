@@ -2,6 +2,8 @@ import numpy as np
 
 # Denotes the start of stimulus index lines in metadata.
 STIM_INDEX_KEY = '#STIM_START_STOP_INDICES'
+# Sample rate inverse line in metadata
+SAMPLERATE_KEY = '#MSMT_BLK_DUR'
 
 # Load Node IDs, positions, and raw data from an experiment txt file.
 def load2PData(path, hasLocation=True):
@@ -16,13 +18,13 @@ def load2PData(path, hasLocation=True):
         return nodeIDs, None, data[:, 1:]
 
 # Load stimulus [start, end] sample indices from the metadata file
-def loadStimulusIndices(path):
+def loadMetadata(path):
     print ("Loading stim times from " + path)
     lines = []
     with open(path) as f:
         lines = [line.strip() for line in f.readlines()]
-    if STIM_INDEX_KEY not in lines:
-        return np.zeros((0, 2))
+    if STIM_INDEX_KEY not in lines or SAMPLERATE_KEY not in lines:
+        raise Exception("No stim and sample rate keys")
 
     stimIndices = []
     at = lines.index(STIM_INDEX_KEY) + 1
@@ -33,7 +35,8 @@ def loadStimulusIndices(path):
         assert len(indices) == 2
         stimIndices.append([int(index) for index in indices])
         at += 1
-    return np.array(stimIndices)
+    at = lines.index(SAMPLERATE_KEY) + 1
+    return np.array(stimIndices), round(1.0 / float(lines[at]))
 
 # Load branch / parent details from interp-neuron file
 def loadTreeStructure(path):
