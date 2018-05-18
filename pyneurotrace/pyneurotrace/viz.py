@@ -8,8 +8,7 @@ from matplotlib import collections as mc
 from matplotlib.animation import FuncAnimation
 import matplotlib.animation as animation
 
-import analysis
-
+from .analysis import epochAverage
 
 PAD = 0.08
 
@@ -136,8 +135,8 @@ def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None,
     aDataOn.set_title("Average ON stimulus response (%.2f sec)" % secAfter)
     fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD, hspace=0.2)
 
-    _plotIntensityOnto(aDataOff, analysis.epochAverage(data, hz, stimOffIdx, 0, secAfter))
-    _plotIntensityOnto(aDataOn, analysis.epochAverage(data, hz, stimOnIdx, 0, secAfter))
+    _plotIntensityOnto(aDataOff, epochAverage(data, hz, stimOffIdx, 0, secAfter))
+    _plotIntensityOnto(aDataOn, epochAverage(data, hz, stimOnIdx, 0, secAfter))
     if aBranchesOff is not None:
         aDataOff.get_yaxis().set_visible(False)
         aDataOn.get_yaxis().set_visible(False)
