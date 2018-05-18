@@ -4,13 +4,16 @@ import numpy as np
 STIM_INDEX_KEY = '#STIM_START_STOP_INDICES'
 
 # Load Node IDs, positions, and raw data from an experiment txt file.
-def load2PData(path):
+def load2PData(path, hasLocation=True):
     print ("Loading 2P data from " + path)
     data = np.loadtxt(path)
     # With N nodes, this returns:
     # Node IDs (N), XYZ (N x 3), raw trace (N x S samples)
     nodeIDs = [int(idx) for idx in data[:, 0]]
-    return nodeIDs, data[:, 1:4], data[:, 4:]
+    if hasLocation:
+        return nodeIDs, data[:, 1:4], data[:, 4:]
+    else:
+        return nodeIDs, None, data[:, 1:]
 
 # Load stimulus [start, end] sample indices from the metadata file
 def loadStimulusIndices(path):

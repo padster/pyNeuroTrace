@@ -1,14 +1,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import FuncFormatter
+from tqdm import tqdm
 
 import matplotlib.patches as patches
 from matplotlib import collections as mc
 from matplotlib.animation import FuncAnimation
 import matplotlib.animation as animation
 
+import analysis
 
-PAD = 0.05
+
+PAD = 0.08
 
 # TODO: Move into a reusable place:
 LINE_COLOR_COUNT = 7
@@ -28,14 +31,15 @@ def _plotLineOnto(ax, data, labels, colors, split):
         assert len(data) == len(labels) and len(data) == len(colors)
         perLineOffset = np.max(data) - np.min(data) if split else 0.0
         for i, (d, l, c) in enumerate(zip(data, labels, colors)):
-            ax.plot(d.T + i * perLineOffset, label=l, c=c, linewidth=0.5)
+            ax.plot(d.T + i * perLineOffset, label=l, c=c, linewidth=1)
             nSamples = d.shape[0]
         ax.legend()
     else:
         perLineOffset = np.max(data) - np.min(data) if split else 0.0
+        dataCopy = np.copy(data)
         for i in range(data.shape[0]):
-            data[i] += i * perLineOffset
-        ax.plot(data.T)
+            dataCopy[i] += i * perLineOffset
+        ax.plot(dataCopy.T)
         nSamples = data.shape[1]
     ax.set_xlim((0, nSamples))
 
@@ -63,35 +67,45 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None):
     else:
         fig, ((aBranches, aData), (aBlank, aStim)) = plt.subplots(2, 2, gridspec_kw = {'height_ratios':[8, 1], 'width_ratios':[1, 20]})
     fig.suptitle(title)
-    fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD)
+    fig.subplots_adjust(left=PAD/2, right=(1 - PAD/2), top=(1 - PAD), bottom=PAD)
 
     _plotIntensityOnto(aData, data)
     if aBranches is not None:
         aData.get_yaxis().set_visible(False)
         aBranches.get_xaxis().set_visible(False)
+        aBranches.set_ylabel("Node ID and Branch")
+
         fig.subplots_adjust(wspace=0.0)
         _plotBranchesOnto(aBranches, branches, yLim=aData.get_ylim())
+    else:
+        aData.set_ylabel("Node ID")
+
     if aStim is not None:
         aData.get_xaxis().set_visible(False)
         aStim.get_yaxis().set_visible(False)
         aStim.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
         aStim.set_xticks(stim[:, 0])
+        aStim.set_xlabel("Time and Stimuli")
+
         fig.subplots_adjust(hspace=0.0)
         _plotStimOnto(aStim, stim, xLim=aData.get_xlim())
     else:
         aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+        aData.set_xlabel("Time")
 
     if aBlank is not None:
         aBlank.get_xaxis().set_visible(False)
         aBlank.get_yaxis().set_visible(False)
 
-def plotLine(data, hz, stim=None, labels=None, colors=None, title=None, split=True):
+def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, split=True):
+    # TODO - color by branches if provided
     fig, aData, aStim = None, None, None
     if stim is None:
         fig, (aData) = plt.subplots(1, 1) # gridspec_kw = {'width_ratios':[3, 1]})
     else:
         fig, (aData, aStim) = plt.subplots(2, 1, gridspec_kw = {'height_ratios':[8, 1]})
-    fig.suptitle(title)
+    if title is not None:
+        fig.suptitle(title)
     fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD)
 
     _plotLineOnto(aData, data, labels, colors, split)
@@ -107,79 +121,153 @@ def plotLine(data, hz, stim=None, labels=None, colors=None, title=None, split=Tr
     if split:
         aData.get_yaxis().set_visible(False)
 
-def debugPlotPlanar(nodeXYZ, branchIDs):
+
+def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None, title=None, secAfter=3):
+    fig, aBranches, aData = None, None, None
+    if branches is None:
+        fig, (aDataOff, aDataOn) = plt.subplots(2, 1)
+    else:
+        fig, ((aBranchesOff, aDataOff), (aBranchesOn, aDataOn)) = \
+            plt.subplots(2, 2, gridspec_kw = {'width_ratios':[1, 20]})
+
+    # if title is not None:
+        # fig.suptitle(title)
+    aDataOff.set_title("Average OFF stimulus response (%.2f sec)" % secAfter)
+    aDataOn.set_title("Average ON stimulus response (%.2f sec)" % secAfter)
+    fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD, hspace=0.2)
+
+    _plotIntensityOnto(aDataOff, analysis.epochAverage(data, hz, stimOffIdx, 0, secAfter))
+    _plotIntensityOnto(aDataOn, analysis.epochAverage(data, hz, stimOnIdx, 0, secAfter))
+    if aBranchesOff is not None:
+        aDataOff.get_yaxis().set_visible(False)
+        aDataOn.get_yaxis().set_visible(False)
+        aBranchesOff.get_xaxis().set_visible(False)
+        aBranchesOn.get_xaxis().set_visible(False)
+        aBranchesOff.set_ylabel("Node ID and Branch")
+        aBranchesOn.set_ylabel("Node ID and Branch")
+
+        fig.subplots_adjust(wspace=0.0)
+        _plotBranchesOnto(aBranchesOff, branches, yLim=aDataOff.get_ylim())
+        _plotBranchesOnto(aBranchesOn, branches, yLim=aDataOn.get_ylim())
+    else:
+        aDataOff.set_ylabel("Node ID")
+        aDataOn.set_ylabel("Node ID")
+
+def debugPlotPlanar(tree, rootID, nodeXYZ, branchIDs):
+    _SCALE = 10000
     fig, ax = plt.subplots(1, 1)
     ax.patch.set_facecolor('black')
+    ax.set_aspect('equal')
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
     for branch in range(np.max(branchIDs) + 1):
-        x = nodeXYZ[branchIDs == branch, 0] * 10000
-        y = nodeXYZ[branchIDs == branch, 1] * 10000
+        x = nodeXYZ[branchIDs == branch, 0] * _SCALE
+        y = nodeXYZ[branchIDs == branch, 1] * _SCALE
         ax.scatter(x, y, color=LINE_COLORS[branch % LINE_COLOR_COUNT])
 
+    lines = _genLines(tree, rootID, scale=_SCALE)
+    lineCollection = mc.LineCollection(lines, colors=[(1,1,1,0.8)], linewidths=1)
+    ax.add_collection(lineCollection)
 
-CIRCLES_HACK = []
-def planarAnimation(nodeXYZ, traceData, hz):
-    DOWNSAMPLE = 5
+def _buildStimAlpha(n, stim):
+    if stim is None:
+        return None
+
+    # TODO - change to actual on vs off?
+    stimAlpha = np.zeros(n)
+    for i in range(stim.shape[0]):
+        stimAlpha[stim[i][0]:(stim[i][1] + 1)] = 1.0
+    return stimAlpha
+
+def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, stim=None, stimXY=(0,0), savePath=None):
+    stimAlpha = _buildStimAlpha(traceData.shape[1], stim)
+
+    # hz = hz * 5
+    _SCALE = 10000
+    DOWNSAMPLE = 1
     hz = hz // DOWNSAMPLE
-    traceData = traceData[:, ::DOWNSAMPLE]
-    # lineCollection = mc.LineCollection(lines, colors=[(0,0,0,1)], linewidths=1)
-    fig, ax = plt.subplots(figsize=(13, 6))
-    # ax.add_collection(lineCollection)
-    # ax.autoscale()
-    # ax.margins(0.1)
-
-
-    nNodes = nodeXYZ.shape[0]
-    assert nNodes == traceData.shape[0]
-    xys = [(nodeXYZ[i, 0] * 10000, nodeXYZ[i, 1] * 10000) for i in range(nNodes)]
-    print (xys)
-    traceData = traceData.clip(min=0)
+    traceData = traceData[:, ::DOWNSAMPLE] #.clip(min=0, max=6)
     traceData = traceData / np.max(traceData)
+    nNodes, nFrames = traceData.shape
+
+    assert nNodes == nodeXYZ.shape[0]
+    xys = [(nodeXYZ[i, 0] * _SCALE, nodeXYZ[i, 1] * _SCALE) for i in range(nNodes)]
+    xs, ys = zip(*xys)
 
     PAD = 0.02
-    xs, ys = zip(*xys)
-    ax.set_xlim(np.min(xs) - PAD, np.max(xs) + PAD)
-    ax.set_ylim(np.min(ys) - PAD, np.max(ys) + PAD)
+    xlim = (np.min(xs) - PAD, np.max(xs) + PAD)
+    ylim = (np.min(ys) - PAD, np.max(ys) + PAD)
 
-    hotMap = plt.get_cmap('hot')
+    # fig, ax = plt.subplots(figsize=(13, 6))
+    width = 10
+    height = width *  (ylim[1] - ylim[0]) / (xlim[1] - xlim[0])
+    fig, ax = plt.subplots(figsize=(width, height))
 
-    def _frameCircles(frameValues):
-        circles = []
-        # print (frameValues)
-        for i in range(nNodes):
-            v = frameValues[i]
-            patch = patches.Circle(xys[i], radius=0.005, color=hotMap(v))
-            circles.append(patch)
-        return circles
+    PAD = 0
+    fig.subplots_adjust(left=PAD/2, right=(1 - PAD/2), top=(1 - PAD), bottom=PAD)
+    ax.patch.set_facecolor('black')
+    ax.set_aspect('equal')
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+
+    # Connections in the tree:
+    lines = _genLines(tree, rootID, scale=_SCALE)
+    ax.add_collection(mc.LineCollection(lines, colors=[(0.5,0.5,0.5,0.25)], linewidths=1))
+
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
+
+    progressBar = tqdm(total=traceData.shape[1])
+
+    RAD = 0.005
+    frameCircles = [patches.Circle(xy, radius=RAD) for xy in xys]
+    patchCollection = mc.PatchCollection(frameCircles, cmap=plt.get_cmap('hot'))
+    patchCollection.set_clim([0, 1])
+    ax.add_collection(patchCollection)
+
+    stimPatch = None
+    if stimAlpha is not None:
+        xPos = (xlim[0] + xlim[1]) / 2.0 + stimXY[0] * (xlim[1] - xlim[0]) / 2.0
+        yPos = (ylim[0] + ylim[1]) / 2.0 + stimXY[1] * (ylim[1] - ylim[0]) / 2.0
+        stimPatch = patches.Rectangle((xPos, yPos), RAD * 3, RAD * 3, color=(1,1,1,1))
+        ax.add_patch(stimPatch)
 
     def _animFrame(i):
-        global CIRCLES_HACK
-        if (i % 200 == 0):
-            print ("%d/%d" % (i, traceData.shape[1]))
-        for circle in CIRCLES_HACK:
-            circle.remove()
-        CIRCLES_HACK = _frameCircles(traceData[:, i])
-        for circle in CIRCLES_HACK:
-            ax.add_patch(circle)
-        ax.set_xlabel("%.2fs / %.2fs" % (i / hz, traceData.shape[1] / hz))
-        return tuple()
+        patchCollection.set(array=traceData[:, i], cmap='hot')#set_array(traceData[:, i])
+        # print (i, np.max(traceData[i]))
+        progressBar.update(1)
+        if savePath is None:
+            ax.set_xlabel("%.2fs / %.2fs" % (i / hz, traceData.shape[1] / hz))
+        if stimPatch is None:
+            return patchCollection,
+        else:
+            stimPatch.set_facecolor((1, 1, 1, stimAlpha[i]))
+            return patchCollection, stimPatch
 
-    anim = FuncAnimation(
-        fig,
-        _animFrame,
-        frames=traceData.shape[1],
-        interval=1,
-        blit=True,
-        repeat=False
-    )
-    print ("Saving...")
+    intMS = 1000.0 / hz
+    anim = FuncAnimation(fig, _animFrame, frames=nFrames, blit=True, interval=intMS)
+
     # Set up formatting for the movie files
-    Writer = animation.writers['ffmpeg']
-    writer = Writer(fps=hz, metadata=dict(artist='Me'), bitrate=1800)
-    anim.save("fire.mp4", writer=writer)
-    # anim.save("fire.gif", dpi=80, writer='imagemagick')
+    if savePath is not None:
+        print ("Saving...")
+        Writer = animation.writers['ffmpeg']
+        anim.save(savePath, writer=Writer(fps=hz)) #, metadata=dict(artist='Me'), bitrate=1800))
+        # anim.save("fire.gif", dpi=80, writer='imagemagick')
+
+    # progressBar.close()
     print ("Saved!")
-    # plt.show()
-    return None
+
+def _genLines(nodes, nodeAt, scale):
+    fullNode = nodes[nodeAt]
+    lineList = []
+    if 'children' in fullNode:
+        for child in fullNode['children']:
+            childId = child['id']
+            lineList.append(
+                [fullNode['location'][:2] * scale, nodes[childId]['location'][:2] * scale]
+            )
+            lineList.extend(_genLines(nodes, childId, scale))
+    return lineList
 
 # Debug helper to print tree strucuture to commandline:
 def printTree(nodeAt, nodes, indent=''):
