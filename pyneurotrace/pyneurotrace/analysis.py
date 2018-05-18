@@ -16,5 +16,5 @@ def epochAverage(traces, hz, startSamples, secBefore, secAfter):
 def HACKcorrectLowColumnsInPlace(traces):
     CUTOFF = 0.42
     avTrace = np.mean(traces, axis=0)
-    badIdx = np.where(avTrace[0, 1:-1] < CUTOFF * (avTrace[0, 0:-2] + avTrace[0, 2:]))[0] + 1
+    badIdx = np.where(avTrace[1:-1] < CUTOFF * (avTrace[0:-2] + avTrace[2:]))[0] + 1
     traces[:, badIdx] = 0.5 * (traces[:, badIdx - 1] + traces[:, badIdx + 1])
