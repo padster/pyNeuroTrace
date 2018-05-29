@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import FuncFormatter
-from tqdm import tqdm
+from tqdm import tqdm_notebook
 
 import matplotlib.patches as patches
 from matplotlib import collections as mc
@@ -16,12 +16,12 @@ PAD = 0.08
 LINE_COLOR_COUNT = 7
 LINE_COLORS = plt.get_cmap('hsv')(np.arange(0.0, 1.0, 1.0/LINE_COLOR_COUNT))[:, :3]
 
-def _plotIntensityOnto(ax, data):
+def _plotIntensityOnto(ax, data, **kwargs):
     # TODO - set limits for min/max values
     if len(data.shape) != 2:
         print ("Intensity plot must be 2D, nodes x samples")
         return
-    ax.imshow(data, cmap='hot', interpolation='nearest', aspect='auto', origin='lower')
+    ax.imshow(data, cmap='hot', interpolation='nearest', aspect='auto', origin='lower', **kwargs)
 
 def _plotLineOnto(ax, data, labels, colors, split):
     ax.patch.set_facecolor('black')
@@ -131,12 +131,15 @@ def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None,
 
     # if title is not None:
         # fig.suptitle(title)
-    aDataOff.set_title("Average OFF stimulus response (%.2f sec)" % secAfter)
-    aDataOn.set_title("Average ON stimulus response (%.2f sec)" % secAfter)
+    offAverage = epochAverage(data, hz, stimOffIdx, 0, secAfter)
+    onAverage  = epochAverage(data, hz,  stimOnIdx, 0, secAfter)
+    maxOn, maxOff = np.max(onAverage), np.max(offAverage)
+    aDataOff.set_title("Av. OFF stim response (%.2fs, max = %.2f)" % (secAfter, maxOff))
+    aDataOn.set_title("Av. ON stim response (%.2fs, max = %.2f)" % (secAfter, maxOn))
     fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD, hspace=0.2)
 
-    _plotIntensityOnto(aDataOff, epochAverage(data, hz, stimOffIdx, 0, secAfter))
-    _plotIntensityOnto(aDataOn, epochAverage(data, hz, stimOnIdx, 0, secAfter))
+    _plotIntensityOnto(aDataOff, offAverage.clip(min=0), vmin=0, vmax=max(maxOn, maxOff))
+    _plotIntensityOnto(aDataOn, onAverage.clip(min=0), vmin=0, vmax=max(maxOn, maxOff))
     if aBranchesOff is not None:
         aDataOff.get_yaxis().set_visible(False)
         aDataOn.get_yaxis().set_visible(False)
@@ -216,7 +219,7 @@ def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, stim=None, stimXY=(0,0
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
 
-    progressBar = tqdm(total=traceData.shape[1])
+    progressBar = tqdm_notebook(total=traceData.shape[1])
 
     RAD = 0.005
     frameCircles = [patches.Circle(xy, radius=RAD) for xy in xys]

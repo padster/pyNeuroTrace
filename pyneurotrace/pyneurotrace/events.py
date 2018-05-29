@@ -1,6 +1,6 @@
 import numpy as np
 
-from filters import _forEachTimeseries
+from .filters import _forEachTimeseries
 
 def ewma(data, weight=0.1):
     def _singleRowEWMA(trace):
