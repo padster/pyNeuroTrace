@@ -5,7 +5,9 @@ STIM_INDEX_KEY = '#STIM_START_STOP_INDICES'
 # Sample rate inverse line in metadata
 SAMPLERATE_KEY = '#MSMT_BLK_DUR'
 
-# Load Node IDs, positions, and raw data from an experiment txt file.
+"""
+Load Node IDs, positions, and raw data from an EXPT.TXT file.
+"""
 def load2PData(path, hasLocation=True):
     print ("Loading 2P data from " + path)
     data = np.loadtxt(path)
@@ -17,7 +19,9 @@ def load2PData(path, hasLocation=True):
     else:
         return nodeIDs, None, data[:, 1:]
 
-# Load stimulus [start, end] sample indices from the metadata file
+"""
+Load stimulus [start, end] sample indices, plus sample rate, from the rscan_metadata .txt file
+"""
 def loadMetadata(path):
     print ("Loading stim times from " + path)
     lines = []
@@ -38,7 +42,9 @@ def loadMetadata(path):
     at = lines.index(SAMPLERATE_KEY) + 1
     return np.array(stimIndices), round(1.0 / float(lines[at]))
 
-# Load branch / parent details from interp-neuron file
+"""
+Load Tree structure (branch & parent details) from an interp-neuron-.txt file
+"""
 def loadTreeStructure(path):
     print ("Loading tree structure from " + path)
     lines = []

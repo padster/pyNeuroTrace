@@ -1,4 +1,4 @@
-# from oasis.functions import deconvolve as oasisDeconvolve
+from oasis.functions import deconvolve as oasisDeconvolve
 import numpy as np
 
 """
@@ -8,9 +8,8 @@ PLoS computational biology, 13(3), e1005423.
 """
 def oasisSmooth(data):
     def _singleRowOasis(samples):
-        # clean, _, _, _, _ = oasisDeconvolve(samples)
-        # return clean
-        return samples
+        clean, _, _, _, _ = oasisDeconvolve(samples)
+        return clean
     return _forEachTimeseries(data, _singleRowOasis)
 
 """

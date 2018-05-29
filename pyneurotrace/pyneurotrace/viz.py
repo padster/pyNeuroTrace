@@ -181,7 +181,10 @@ def _buildStimAlpha(n, stim):
 def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, stim=None, stimXY=(0,0), savePath=None):
     stimAlpha = _buildStimAlpha(traceData.shape[1], stim)
 
-    # hz = hz * 5
+    if (hz < 10):
+        print ("%d hz too small for output video, increasing..." % hz)
+        hz = hz * 3
+
     _SCALE = 10000
     DOWNSAMPLE = 1
     hz = hz // DOWNSAMPLE
@@ -216,7 +219,7 @@ def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, stim=None, stimXY=(0,0
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
 
-    progressBar = tqdm(total=traceData.shape[1])
+    progressBar = tqdm(total=nFrames)
 
     RAD = 0.005
     frameCircles = [patches.Circle(xy, radius=RAD) for xy in xys]
