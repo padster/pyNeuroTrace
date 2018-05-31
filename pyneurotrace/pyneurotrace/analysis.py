@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from scipy.optimize import curve_fit
 
 def epochs(traces, hz, startSamples, secBefore, secAfter):
     samplesBefore, samplesAfter = int(math.ceil(hz * secBefore)), int(math.floor(hz * secAfter))
@@ -11,6 +12,24 @@ def epochs(traces, hz, startSamples, secBefore, secAfter):
 def epochAverage(traces, hz, startSamples, secBefore, secAfter):
     return np.mean(epochs(traces, hz, startSamples, secBefore, secAfter), axis=0)
 
+def fitDoubleExp(y, hz, tAGuess=0.1, tBGuess=0.4):
+    n = len(y)
+    aGuess = np.max(y)
+    x = np.arange(n)
+
+    def f(x, A, t0, tA, tB):
+        y = np.zeros(n)
+        if not (0 < tA and tA < tB - 1e-8 and tB < 1000):
+            return np.ones(n) * 1000
+        scale = A * np.power(tA, tA / (tA - tB)) * np.power(tB, tB / (tB - tA)) / (tB - tA)
+        for i in range(n):
+            if i > t0:
+                xi = i - t0
+                y[i] = scale * (np.exp(-xi / tB) - np.exp(-xi / tA))
+        return y
+
+    popt, _ = curve_fit(f, x, y, p0=(aGuess, 0, tAGuess * hz, tBGuess * hz))
+    return popt, f(x, *popt)
 
 # HACK - remove once fixed
 def HACKcorrectLowColumnsInPlace(traces, justFind=False):

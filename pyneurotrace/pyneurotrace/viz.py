@@ -8,7 +8,7 @@ from matplotlib import collections as mc
 from matplotlib.animation import FuncAnimation
 import matplotlib.animation as animation
 
-from .analysis import epochAverage
+from .analysis import epochAverage, fitDoubleExp
 
 PAD = 0.08
 
@@ -154,6 +154,42 @@ def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None,
     else:
         aDataOff.set_ylabel("Node ID")
         aDataOn.set_ylabel("Node ID")
+
+    aDataOff.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+    aDataOn.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+
+def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace=None):
+    windowSz = secAfter * hz
+    if vizTrace is not None:
+        t = "df/f0 for trace %d" % vizTrace
+        stim = np.array([stimOffsets, stimOffsets + windowSz]).T
+        plotLine(np.array([dfof[vizTrace]]), hz=hz, stim=stim, title=t, split=False)
+
+    allParams = []
+    for trace in tqdm_notebook(range(dfof.shape[0])):
+        y = np.mean(np.array([dfof[trace, i:i + windowSz] for i in stimOffsets]), axis=0)
+        y = y - np.min(y)
+        params, bestFit = fitDoubleExp(y, hz=hz)
+        if not np.isnan(np.array(params)).any() and params[0] > 0.1:
+            allParams.append(params)
+        if trace == vizTrace:
+            col = [LINE_COLORS[b % LINE_COLOR_COUNT] for b in range(2)]
+            lab = ["dfof", "best fit"]
+            plotLine([y, bestFit], hz=hz, split=False, colors=col, labels=lab)
+
+    allP = np.array(allParams)
+    allA, allT0, allTA, allTB = allP[:, 0], allP[:, 1] / hz, allP[:, 2] / hz, allP[:, 3] / hz
+
+    fig, ax = plt.subplots(2, 2, tight_layout=True)
+    ax[0][0].hist(allA)
+    ax[0][1].hist(allT0)
+    ax[1][0].hist(allTA)
+    ax[1][1].hist(allTB)
+    ax[0][0].set_title("A")
+    ax[0][1].set_title("t0")
+    ax[1][0].set_title("tA")
+    ax[1][1].set_title("tB")
+    plt.show()
 
 def debugPlotPlanar(tree, rootID, nodeXYZ, branchIDs):
     _SCALE = 10000
