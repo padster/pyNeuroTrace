@@ -191,7 +191,7 @@ def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace
     ax[1][1].set_title("tB")
     plt.show()
 
-def debugPlotPlanar(tree, rootID, nodeXYZ, branchIDs):
+def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs):
     _SCALE = 10000
     fig, ax = plt.subplots(1, 1)
     ax.patch.set_facecolor('black')
