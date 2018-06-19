@@ -1,24 +1,24 @@
-# Given a tree from file, and IDs in trace data, reorder the tree so that the child
-# order matches the trace data order, and return [start, end) indices for each branch
-"""
-HACK: Need to figure out the good way to do this...
-def reorderTreeForTraces(nodeID, nodes, dataIDs):
-    if len(nodes[nodeID]['children']) > 1:
-        nodes[nodeID]['children'].sort(key=lambda child: dataIDs.index(child['id']))
-    for child in nodes[nodeID]['children']:
-        reorderTreeForTraces(child['id'], nodes, dataIDs)
+import numpy as np
 
-def getBranchIDs(nodeID, nodes):
-    flatIDs = _flattenIDs(nodeID, nodes)
-    nextChildren, branchIDs = [], []
-    branchAt = -1
-    for idx in flatIDs:
-        if idx not in nextChildren:
-            branchAt += 1
-        branchIDs.append(branchAt)
-        nextChildren = [n['id'] for n in nodes[idx]['children']]
-    return branchIDs
-"""
+def treePostProcessing(dataIDs, nodeXYZ, data, rootID, tree):
+    # 1) Add location to all points that have it:
+    if nodeXYZ is not None:
+        for i in range(len(dataIDs)):
+            tree[dataIDs[i]]['location'] = nodeXYZ[i]
+
+    # 2) Calculate branches for each node
+    branchIDMap = buildBranchIDMap(rootID, tree, splitAtBranch=True)
+    branchIDs = [branchIDMap[nodeID] for nodeID in dataIDs]
+
+    # 3) Reorder the nodes by branch
+    idOrder = [i for i in range(len(dataIDs))]
+    idOrder.sort(key=lambda a: (branchIDs[a], a))
+    dataIDs = np.array(dataIDs)[idOrder].tolist()
+    branchIDs = np.array(branchIDs)[idOrder].tolist()
+    if nodeXYZ is not None:
+        nodeXYZ = nodeXYZ[idOrder]
+    data = data[idOrder]
+    return dataIDs, nodeXYZ, data, branchIDs, branchIDMap
 
 def buildBranchIDMap(nodeID, nodes, splitAtBranch=False):
     result = {}

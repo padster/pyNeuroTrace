@@ -55,7 +55,7 @@ def _plotStimOnto(ax, stim, xLim):
     for stimStart in stim[:, 0]:
         ax.axvline(x=stimStart, c='y')
 
-def plotIntensity(data, hz, branches=None, stim=None, title=None):
+def plotIntensity(data, hz, branches=None, stim=None, title=None, savePath=None):
     fig, aBranches, aData, aStim, aBlank = None, None, None, None, None
     if branches is None and stim is None:
         fig, (aData) = plt.subplots(1, 1)
@@ -96,7 +96,10 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None):
         aBlank.get_xaxis().set_visible(False)
         aBlank.get_yaxis().set_visible(False)
 
-def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, split=True):
+    if savePath is not None:
+        fig.savefig(savePath)
+
+def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, split=True, savePath=None):
     # TODO - color by branches if provided
     fig, aData, aStim = None, None, None
     if stim is None:
@@ -120,8 +123,11 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
     if split:
         aData.get_yaxis().set_visible(False)
 
+    if savePath is not None:
+        fig.savefig(savePath)
 
-def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None, title=None, secAfter=3):
+
+def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None, title=None, secAfter=3, savePath=None):
     fig, aBranches, aData = None, None, None
     if branches is None:
         fig, (aDataOff, aDataOn) = plt.subplots(2, 1)
@@ -158,7 +164,10 @@ def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None,
     aDataOff.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
     aDataOn.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
 
-def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace=None):
+    if savePath is not None:
+        fig.savefig(savePath)
+
+def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace=None, savePath=None):
     windowSz = secAfter * hz
     if vizTrace is not None:
         t = "df/f0 for trace %d" % vizTrace
@@ -189,9 +198,12 @@ def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace
     ax[0][1].set_title("t0")
     ax[1][0].set_title("tA")
     ax[1][1].set_title("tB")
-    plt.show()
+    # plt.show()
 
-def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs):
+    if savePath is not None:
+        fig.savefig(savePath)
+
+def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, savePath=None):
     _SCALE = 10000
     fig, ax = plt.subplots(1, 1)
     ax.patch.set_facecolor('black')
@@ -206,6 +218,9 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs):
     lines = _genLines(tree, rootID, scale=_SCALE)
     lineCollection = mc.LineCollection(lines, colors=[(1,1,1,0.8)], linewidths=1)
     ax.add_collection(lineCollection)
+
+    if savePath is not None:
+        fig.savefig(savePath)
 
 def _buildStimAlpha(n, stim):
     if stim is None:
