@@ -1,4 +1,4 @@
-from oasis.functions import deconvolve as oasisDeconvolve
+# from oasis.functions import deconvolve as oasisDeconvolve
 import numpy as np
 
 """
