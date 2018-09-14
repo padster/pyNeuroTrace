@@ -213,7 +213,8 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, savePath=None):
     for branch in range(np.max(branchIDs) + 1):
         x = nodeXYZ[branchIDs == branch, 0] * _SCALE
         y = nodeXYZ[branchIDs == branch, 1] * _SCALE
-        ax.scatter(x, y, color=LINE_COLORS[branch % LINE_COLOR_COUNT])
+        c = 'w' if branch == -1 else LINE_COLORS[branch % LINE_COLOR_COUNT]
+        ax.scatter(x, y, color=c)
 
     lines = _genLines(tree, rootID, scale=_SCALE)
     lineCollection = mc.LineCollection(lines, colors=[(1,1,1,0.8)], linewidths=1)
