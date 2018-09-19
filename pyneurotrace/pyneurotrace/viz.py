@@ -101,7 +101,7 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None, savePath=None)
     if savePath is not None:
         fig.savefig(savePath)
 
-def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, split=True, savePath=None):
+def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, split=True, limitSec=None, savePath=None):
     fig, aData, aStim = None, None, None
     if stim is None:
         fig, (aData) = plt.subplots(1, 1) # gridspec_kw = {'width_ratios':[3, 1]})
@@ -130,6 +130,15 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
     #if split:
     #    aData.get_yaxis().set_visible(False)
 
+    # Cull the start/end times:
+    if limitSec is not None:
+        startTime, endTime = limitSec
+        startSample = None if startTime is None else startTime * hz
+        endSample = None if endTime is None else endTime * hz
+        aData.set_xlim(startSample, endSample)
+        if aStim is not None:
+            aStim.set_xlim(startSample, endSample)
+    
     if savePath is not None:
         fig.savefig(savePath)
 
