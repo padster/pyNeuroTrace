@@ -34,6 +34,8 @@ def _plotLineOnto(ax, data, labels, colors, split):
             nSamples = d.shape[0]
         ax.legend()
     else:
+        if colors is not None:
+            ax.set_prop_cycle('color', colors)
         perLineOffset = np.max(data) - np.min(data) if split else 0.0
         dataCopy = np.copy(data)
         for i in range(data.shape[0]):
@@ -100,7 +102,6 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None, savePath=None)
         fig.savefig(savePath)
 
 def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, split=True, savePath=None):
-    # TODO - color by branches if provided
     fig, aData, aStim = None, None, None
     if stim is None:
         fig, (aData) = plt.subplots(1, 1) # gridspec_kw = {'width_ratios':[3, 1]})
@@ -110,7 +111,12 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
         fig.suptitle(title)
     fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD)
 
+    # Color by branches if required.
+    if colors is None and branches is not None:
+        colors = LINE_COLORS[(np.array(branches)) % LINE_COLOR_COUNT]
+
     _plotLineOnto(aData, data, labels, colors, split)
+    
     if aStim is not None:
         aData.get_xaxis().set_visible(False)
         aStim.get_yaxis().set_visible(False)
@@ -120,8 +126,9 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
         _plotStimOnto(aStim, stim, xLim=aData.get_xlim())
     else:
         aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
-    if split:
-        aData.get_yaxis().set_visible(False)
+    #Disabled so we have a hacky way to see y scale
+    #if split:
+    #    aData.get_yaxis().set_visible(False)
 
     if savePath is not None:
         fig.savefig(savePath)
@@ -215,7 +222,7 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, savePath=None):
         y = nodeXYZ[branchIDs == branch, 1] * _SCALE
         c = (1,1,1,0.6) if branch == -1 else LINE_COLORS[branch % LINE_COLOR_COUNT]
         s = 16 if branch == -1 else 36
-        ax.scatter(x, y, c=c, s=s)
+        ax.scatter(x, y, c=[c], s=s)
 
     lines = _genLines(tree, rootID, scale=_SCALE)
     lineCollection = mc.LineCollection(lines, colors=[(1,1,1,0.8)], linewidths=1)
