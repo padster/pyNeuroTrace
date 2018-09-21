@@ -49,15 +49,17 @@ def _plotBranchesOnto(ax, branches, yLim):
     branchRGB = np.expand_dims(branchRGB, axis=1)
     ax.imshow(branchRGB, interpolation='nearest', aspect='auto', origin='lower')
 
-def _plotStimOnto(ax, stim, xLim):
+def _plotStimOnto(ax, stim, xLim, isDataPlot=False):
+    alpha = 0.2 if isDataPlot else 1.0
+    ls = '--' if isDataPlot else '-'
     ax.set_xlim(xLim)
     ax.patch.set_facecolor('black')
     for stimEnd in stim[:, 1]:
-        ax.axvline(x=stimEnd, c='r')
+        ax.axvline(x=stimEnd, color=(1.0, 0.0, 0.0, alpha), linestyle=ls)
     for stimStart in stim[:, 0]:
-        ax.axvline(x=stimStart, c='y')
+        ax.axvline(x=stimStart, color=(1.0, 1.0, 0.0, alpha), linestyle=ls)
 
-def plotIntensity(data, hz, branches=None, stim=None, title=None, savePath=None):
+def plotIntensity(data, hz, branches=None, stim=None, title=None, overlayStim=False, savePath=None):
     fig, aBranches, aData, aStim, aBlank = None, None, None, None, None
     if branches is None and stim is None:
         fig, (aData) = plt.subplots(1, 1)
@@ -90,6 +92,8 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None, savePath=None)
 
         fig.subplots_adjust(hspace=0.0)
         _plotStimOnto(aStim, stim, xLim=aData.get_xlim())
+        if overlayStim:
+            _plotStimOnto(aData, stim, xLim=aData.get_xlim(), isDataPlot=True)
     else:
         aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
         aData.set_xlabel("Time")
@@ -101,7 +105,7 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None, savePath=None)
     if savePath is not None:
         fig.savefig(savePath)
 
-def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, split=True, limitSec=None, savePath=None):
+def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, split=True, limitSec=None, overlayStim=True, savePath=None):
     fig, aData, aStim = None, None, None
     if stim is None:
         fig, (aData) = plt.subplots(1, 1) # gridspec_kw = {'width_ratios':[3, 1]})
@@ -122,8 +126,11 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
         aStim.get_yaxis().set_visible(False)
         aStim.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
         aStim.set_xticks(stim[:, 0])
+        
         fig.subplots_adjust(hspace=0.0)
         _plotStimOnto(aStim, stim, xLim=aData.get_xlim())
+        if overlayStim:
+            _plotStimOnto(aData, stim, xLim=aData.get_xlim(), isDataPlot=True)
     else:
         aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
     #Disabled so we have a hacky way to see y scale
