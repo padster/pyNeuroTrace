@@ -233,6 +233,20 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, savePath=None):
     ax.set_aspect('equal')
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
+    
+    # First find the closest branch to the soma, and plot it bigger in that colour
+    loc = tree[rootID]['location']
+    nearestBranch, nearestDelta = 0, 1e9
+    for i in range(len(nodeXYZ)):
+        delta = np.linalg.norm(list(a - b for a, b in zip(nodeXYZ[i], loc)))
+        if delta < nearestDelta:
+            nearestDelta = delta
+            nearestBranch = branchIDs[i]
+    x = tree[rootID]['location'][0] * _SCALE
+    y = tree[rootID]['location'][1] * _SCALE
+    c = (1,1,1) if nearestBranch == -1 else LINE_COLORS[nearestBranch % LINE_COLOR_COUNT]
+    ax.scatter(x, y, s=150, c=(c[0], c[1], c[2], 0.6), marker='o')
+    
     for branch in range(np.min(branchIDs), np.max(branchIDs) + 1):
         x = nodeXYZ[branchIDs == branch, 0] * _SCALE
         y = nodeXYZ[branchIDs == branch, 1] * _SCALE
