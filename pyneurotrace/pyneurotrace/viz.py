@@ -150,7 +150,7 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
         fig.savefig(savePath)
 
 
-def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None, title=None, secAfter=3, savePath=None):
+def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None, title=None, secAfter=3, savePath=None, **kwargs):
     fig, aBranches, aData = None, None, None
     if branches is None:
         fig, (aDataOff, aDataOn) = plt.subplots(2, 1)
@@ -158,17 +158,22 @@ def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None,
         fig, ((aBranchesOff, aDataOff), (aBranchesOn, aDataOn)) = \
             plt.subplots(2, 2, gridspec_kw = {'width_ratios':[1, 20]})
 
-    # if title is not None:
-        # fig.suptitle(title)
+    if title is not None:
+        fig.suptitle(title)
+
     offAverage = epochAverage(data, hz, stimOffIdx, 0, secAfter)
     onAverage  = epochAverage(data, hz,  stimOnIdx, 0, secAfter)
     maxOn, maxOff = np.max(onAverage), np.max(offAverage)
-    aDataOff.set_title("Av. OFF stim response (%.2fs, max = %.2f)" % (secAfter, maxOff))
-    aDataOn.set_title("Av. ON stim response (%.2fs, max = %.2f)" % (secAfter, maxOn))
+    if 'vmax' not in kwargs:
+        kwargs['vmax'] = max(maxOn, maxOff)
+    if 'vmin' not in kwargs:
+        kwargs['vmin'] = 0
+    aDataOff.set_title("Av. OFF stim response (%.2fs, max = %.2f/%.2f)" % (secAfter, maxOff, kwargs['vmax']))
+    aDataOn.set_title("Av. ON stim response (%.2fs, max = %.2f/%.2f)" % (secAfter, maxOn, kwargs['vmax']))
     fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD, hspace=0.2)
 
-    _plotIntensityOnto(aDataOff, offAverage.clip(min=0), vmin=0, vmax=max(maxOn, maxOff))
-    _plotIntensityOnto(aDataOn, onAverage.clip(min=0), vmin=0, vmax=max(maxOn, maxOff))
+    _plotIntensityOnto(aDataOff, offAverage.clip(min=0), **kwargs)
+    _plotIntensityOnto(aDataOn, onAverage.clip(min=0), **kwargs)
     if aBranchesOff is not None:
         aDataOff.get_yaxis().set_visible(False)
         aDataOn.get_yaxis().set_visible(False)
