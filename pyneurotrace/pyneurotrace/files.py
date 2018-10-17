@@ -4,6 +4,11 @@ import numpy as np
 STIM_INDEX_KEY = '#STIM_START_STOP_INDICES'
 # Sample rate inverse line in metadata
 SAMPLERATE_KEY = '#MSMT_BLK_DUR'
+# XY pixel size in world meters, in metadata
+PIXEL_SIZE_KEY = '#PIXEL_SIZE_M'
+# Z stack locations in metadata
+Z_STACK_LOCATIONS_KEY = '#IMAGE_STACK_LOCATIONS_M'
+
 
 """
 Load Node IDs, positions, and raw data from an EXPT.TXT file.
@@ -39,8 +44,24 @@ def loadMetadata(path):
         assert len(indices) == 2
         stimIndices.append([int(index) for index in indices])
         at += 1
-    at = lines.index(SAMPLERATE_KEY) + 1
-    return np.array(stimIndices), round(1.0 / float(lines[at]))
+
+    inverse_hz = float(lines[lines.index(SAMPLERATE_KEY) + 1])
+    hz = round(1.0 / inverse_hz)
+
+    # Two new optional metadata fields added Sept 2018:
+    xySizeM = 1.0
+    if PIXEL_SIZE_KEY in lines:
+        xySizeM = float(lines[lines.index(PIXEL_SIZE_KEY) + 1])
+
+    zStackLocations = []
+    if Z_STACK_LOCATIONS_KEY:
+        at = lines.index(Z_STACK_LOCATIONS_KEY) + 1
+        while at < len(lines):
+            if lines[at][0] == '#':
+                break
+            zStackLocations.append(float(lines[at]))
+            at += 1
+    return np.array(stimIndices), hz, xySizeM, np.array(zStackLocations)
 
 """
 Load Tree structure (branch & parent details) from an interp-neuron-.txt file
