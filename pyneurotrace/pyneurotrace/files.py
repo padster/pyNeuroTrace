@@ -97,6 +97,34 @@ def loadTreeStructure(path):
 
     return rootId, nodes
 
+"""
+Load (nodeID, x, y, z) from a file, separate from the traces file.
+Return as the list of IDs, then the list of positions.
+This supports having positions for nodes which have no trace recorded.
+"""
+def loadNodeXYZ(path):
+    print ("Loading XYZ data from " + path)
+    data = np.loadtxt(path)
+    # With N nodes, this returns:
+    # Node IDs (N), XYZ (N x 3)
+    nodeIDs = [int(idx) for idx in data[:, 0]]
+    return nodeIDs, data[:, 1:4]
+
+"""
+Load kymograph - a big (R x C) matrix with:
+a) First row is node IDs, every pxlPerNode (the rest being -1)
+b) The remaining are concatenated blocks of (R - 1) x (pxlPerNode) kymograph intensities
+This parses them out, and returns as a mapping of node ID -> Kymograph data.
+"""
+def loadKymograph(path, pxlPerNode=11):
+    print ("Loading Kymograph data from " + path)
+    data = np.loadtxt(path)
+    assert data.shape[1] % pxlPerNode == 0
+    result = {}
+    for i in range(0, data.shape[1], pxlPerNode):
+        result[data[0, i]] = data[1:, i:(i+pxlPerNode)]
+    return result
+    
 # Given lines and the current offset, verify the lines are the correct type, and return the values
 def _treeVerify(at, lines, lineTypes):
     n = len(lineTypes)
