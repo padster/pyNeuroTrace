@@ -1,24 +1,29 @@
 import numpy as np
 
-def treePostProcessing(dataIDs, nodeXYZ, data, rootID, tree):
+def treePostProcessing(nodeIDs, nodeXYZ, traceIDs, data, rootID, tree):
     # 1) Add location to all points that have it:
     if nodeXYZ is not None:
-        for i in range(len(dataIDs)):
-            tree[dataIDs[i]]['location'] = nodeXYZ[i]
+        for i in range(len(nodeIDs)):
+            tree[nodeIDs[i]]['location'] = nodeXYZ[i]
 
     # 2) Calculate branches for each node
     branchIDMap = buildBranchIDMap(rootID, tree, splitAtBranch=True)
-    branchIDs = [branchIDMap[nodeID] for nodeID in dataIDs]
+    branchIDs = [branchIDMap[nodeID] for nodeID in nodeIDs]
+    traceBranches = [branchIDMap[traceID] for traceID in traceIDs]
 
     # 3) Reorder the nodes by branch
-    idOrder = [i for i in range(len(dataIDs))]
-    idOrder.sort(key=lambda a: (branchIDs[a], a))
-    dataIDs = np.array(dataIDs)[idOrder].tolist()
-    branchIDs = np.array(branchIDs)[idOrder].tolist()
+    nodeIDOrder = [i for i in range(len(nodeIDs))]
+    traceIDOrder = [i for i in range(len(traceIDs))]
+    nodeIDOrder.sort(key=lambda a: (branchIDs[a], a))
+    traceIDOrder.sort(key=lambda a: (traceBranches[a], a))
+    
+    nodeIDs = np.array(nodeIDs)[nodeIDOrder].tolist()
+    branchIDs = np.array(branchIDs)[nodeIDOrder].tolist()
     if nodeXYZ is not None:
-        nodeXYZ = nodeXYZ[idOrder]
-    data = data[idOrder]
-    return dataIDs, nodeXYZ, data, branchIDs, branchIDMap
+        nodeXYZ = nodeXYZ[nodeIDOrder]
+    data = data[traceIDOrder]
+    finalTraceIDs = np.array(traceIDs)[traceIDOrder].tolist()
+    return nodeIDs, nodeXYZ, finalTraceIDs, traceBranches, data, branchIDs, branchIDMap
 
 def buildBranchIDMap(nodeID, nodes, splitAtBranch=False):
     result = {}
