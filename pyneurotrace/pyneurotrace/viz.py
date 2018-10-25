@@ -231,13 +231,15 @@ def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace
     if savePath is not None:
         fig.savefig(savePath)
 
-def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, savePath=None):
+def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, title=None, savePath=None):
     _SCALE = 10000
     fig, ax = plt.subplots(1, 1)
     ax.patch.set_facecolor('black')
     ax.set_aspect('equal')
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
+    if title is not None:
+        ax.set_title(title)
     
     # First find the closest branch to the soma, and plot it bigger in that colour
     loc = tree[rootID]['location']
@@ -250,7 +252,7 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, savePath=None):
     x = tree[rootID]['location'][0] * _SCALE
     y = tree[rootID]['location'][1] * _SCALE
     c = (1,1,1) if nearestBranch == -1 else LINE_COLORS[nearestBranch % LINE_COLOR_COUNT]
-    ax.scatter(x, y, s=150, c=(c[0], c[1], c[2], 0.6), marker='o')
+    ax.scatter(x, y, s=150, c=[(c[0], c[1], c[2], 0.6)], marker='o')
     
     for branch in range(np.min(branchIDs), np.max(branchIDs) + 1):
         x = nodeXYZ[branchIDs == branch, 0] * _SCALE
