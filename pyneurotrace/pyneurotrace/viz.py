@@ -117,7 +117,7 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
 
     # Color by branches if required.
     if colors is None and branches is not None:
-        colors = LINE_COLORS[(np.array(branches)) % LINE_COLOR_COUNT]
+        colors = [(0.8,0.8,0.8) if b == -1 else LINE_COLORS[b % LINE_COLOR_COUNT] for b in branches]
 
     _plotLineOnto(aData, data, labels, colors, split)
     
