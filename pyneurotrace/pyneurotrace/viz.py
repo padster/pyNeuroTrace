@@ -267,6 +267,23 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, title=None, savePath=N
 
     if savePath is not None:
         fig.savefig(savePath)
+   
+# Scatter plot of all samples from traces from a filopodia tip vs. filopodia base.
+def plotBaseTipScatter(baseTrace, tipTrace, title=None, **kwargs):
+    fig, (ax) = plt.subplots(1, 1)
+    if title is not None:
+        ax.set_title(title)
+    
+    ax.set_aspect('equal')
+    ax.scatter(baseTrace, tipTrace, **kwargs)
+    ax.set_xlabel('Base DF/F0')
+    ax.set_ylabel('Tip DF/F0')
+    
+    (xLo, xHi) = ax.get_xlim()
+    (yLo, yHi) = ax.get_ylim()
+    bounds = [max(xLo, yLo), min(xHi, yHi)]
+    ax.plot(bounds, bounds, c='k', label='Base = Tip') 
+    ax.legend() 
 
 def _buildStimAlpha(n, stim):
     if stim is None:
@@ -278,22 +295,21 @@ def _buildStimAlpha(n, stim):
         stimAlpha[stim[i][0]:(stim[i][1] + 1)] = 1.0
     return stimAlpha
 
-def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, stim=None, stimXY=(0,0), savePath=None):
+def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, stim=None, stimXY=(0,0), radius=0.005, savePath=None):
     stimAlpha = _buildStimAlpha(traceData.shape[1], stim)
 
     if (hz < 10):
         print ("%d hz too small for output video, increasing..." % hz)
         hz = hz * 3
 
-    _SCALE = 10000
+    _SCALE = 1 # 10000
     DOWNSAMPLE = 1
     hz = hz // DOWNSAMPLE
-    traceData = traceData[:, ::DOWNSAMPLE] #.clip(min=0, max=6)
+    traceData = traceData[:, ::DOWNSAMPLE]
     traceData = traceData / np.max(traceData)
-    nNodes, nFrames = traceData.shape
+    nFrames = traceData.shape[1]
 
-    assert nNodes == nodeXYZ.shape[0]
-    xys = [(nodeXYZ[i, 0] * _SCALE, nodeXYZ[i, 1] * _SCALE) for i in range(nNodes)]
+    xys = [(nodeXYZ[i, 0] * _SCALE, nodeXYZ[i, 1] * _SCALE) for i in range(nodeXYZ.shape[0])]
     xs, ys = zip(*xys)
 
     PAD = 0.02
@@ -321,8 +337,7 @@ def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, stim=None, stimXY=(0,0
 
     progressBar = tqdm_notebook(total=nFrames)
 
-    RAD = 0.005
-    frameCircles = [patches.Circle(xy, radius=RAD) for xy in xys]
+    frameCircles = [patches.Circle(xy, radius=radius) for xy in xys]
     patchCollection = mc.PatchCollection(frameCircles, cmap=plt.get_cmap('hot'))
     patchCollection.set_clim([0, 1])
     ax.add_collection(patchCollection)
@@ -331,12 +346,11 @@ def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, stim=None, stimXY=(0,0
     if stimAlpha is not None:
         xPos = (xlim[0] + xlim[1]) / 2.0 + stimXY[0] * (xlim[1] - xlim[0]) / 2.0
         yPos = (ylim[0] + ylim[1]) / 2.0 + stimXY[1] * (ylim[1] - ylim[0]) / 2.0
-        stimPatch = patches.Rectangle((xPos, yPos), RAD * 3, RAD * 3, color=(1,1,1,1))
+        stimPatch = patches.Rectangle((xPos, yPos), radius * 3, radius * 3, color=(1,1,1,1))
         ax.add_patch(stimPatch)
 
     def _animFrame(i):
-        patchCollection.set(array=traceData[:, i], cmap='hot')#set_array(traceData[:, i])
-        # print (i, np.max(traceData[i]))
+        patchCollection.set(array=traceData[:, i], cmap='hot')
         progressBar.update(1)
         if savePath is None:
             ax.set_xlabel("%.2fs / %.2fs" % (i / hz, traceData.shape[1] / hz))
@@ -371,6 +385,28 @@ def _genLines(nodes, nodeAt, scale):
             lineList.extend(_genLines(nodes, childId, scale))
     return lineList
 
+# Shows raw intensity across the 11 (or whatever) pixel line scanned around the POI,
+# used to check whether the POI drifted away from the sensed location.
+def kymograph(kymoData, hz, smooth=False, title=None, widthInches=10, heightInches=60):
+    # Optionally smooth with neighbours, to give a less noisy sense of drift
+    if smooth:
+        kymoData = np.copy(kymoData)
+        kymoData = (kymoData[:, 2:] + kymoData[:, 1:-1] + kymoData[:, :-2]) / 3
+        kymoData = (kymoData[2:, :] + kymoData[1:-1, :] + kymoData[:-2, :]) / 3
+
+    fig, (ax) = plt.subplots(1, 1)
+    if title is not None:
+        ax.set_title(title)
+    ax.set_ylabel("Time")
+    ax.set_xlabel("Pixel offset")
+    _plotIntensityOnto(ax, kymoData)
+    ax.figure.set_size_inches(widthInches, heightInches)
+    
+    def _yLabelFormatter(y, pos):
+        y = kymoData.shape[0] - y # top left = first sample, so invert
+        return "%.2fs" % (y / hz)
+    ax.get_yaxis().set_major_formatter(FuncFormatter(_yLabelFormatter))
+    
 # Debug helper to print tree strucuture to commandline:
 def printTree(nodeAt, nodes, indent=''):
     print (indent + str(nodeAt))
