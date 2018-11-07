@@ -391,6 +391,7 @@ def kymograph(kymoData, hz, smooth=False, title=None, widthInches=10, heightInch
     # Optionally smooth with neighbours, to give a less noisy sense of drift
     if smooth:
         kymoData = np.copy(kymoData)
+        kymoData = np.pad(kymoData, 1, 'edge')
         kymoData = (kymoData[:, 2:] + kymoData[:, 1:-1] + kymoData[:, :-2]) / 3
         kymoData = (kymoData[2:, :] + kymoData[1:-1, :] + kymoData[:-2, :]) / 3
 
@@ -399,13 +400,17 @@ def kymograph(kymoData, hz, smooth=False, title=None, widthInches=10, heightInch
         ax.set_title(title)
     ax.set_ylabel("Time")
     ax.set_xlabel("Pixel offset")
-    _plotIntensityOnto(ax, kymoData)
+    _plotIntensityOnto(ax, kymoData[::-1])
     ax.figure.set_size_inches(widthInches, heightInches)
     
+    halfSize = kymoData.shape[1]//2
     def _yLabelFormatter(y, pos):
         y = kymoData.shape[0] - y # top left = first sample, so invert
         return "%.2fs" % (y / hz)
+    ax.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%d" % (x - halfSize)))
     ax.get_yaxis().set_major_formatter(FuncFormatter(_yLabelFormatter))
+
+
     
 # Debug helper to print tree strucuture to commandline:
 def printTree(nodeAt, nodes, indent=''):
