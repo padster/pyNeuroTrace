@@ -120,13 +120,13 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
         colors = [(0.8,0.8,0.8) if b == -1 else LINE_COLORS[b % LINE_COLOR_COUNT] for b in branches]
 
     _plotLineOnto(aData, data, labels, colors, split)
-    
+
     if aStim is not None:
         aData.get_xaxis().set_visible(False)
         aStim.get_yaxis().set_visible(False)
         aStim.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
         aStim.set_xticks(stim[:, 0])
-        
+
         fig.subplots_adjust(hspace=0.0)
         _plotStimOnto(aStim, stim, xLim=aData.get_xlim())
         if overlayStim:
@@ -145,7 +145,7 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
         aData.set_xlim(startSample, endSample)
         if aStim is not None:
             aStim.set_xlim(startSample, endSample)
-    
+
     if savePath is not None:
         fig.savefig(savePath)
 
@@ -231,8 +231,8 @@ def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace
     if savePath is not None:
         fig.savefig(savePath)
 
-def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, title=None, savePath=None):
-    _SCALE = 10000
+def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, title=None, flipY=False, scale=10000, savePath=None):
+    xScale, yScale = scale, scale * (-1 if flipY else 1)
     fig, ax = plt.subplots(1, 1)
     ax.patch.set_facecolor('black')
     ax.set_aspect('equal')
@@ -240,7 +240,7 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, title=None, savePath=N
     ax.get_yaxis().set_visible(False)
     if title is not None:
         ax.set_title(title)
-    
+
     # First find the closest branch to the soma, and plot it bigger in that colour
     loc = tree[rootID]['location']
     nearestBranch, nearestDelta = 0, 1e9
@@ -249,41 +249,41 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, title=None, savePath=N
         if delta < nearestDelta:
             nearestDelta = delta
             nearestBranch = branchIDs[i]
-    x = tree[rootID]['location'][0] * _SCALE
-    y = tree[rootID]['location'][1] * _SCALE
+    x = xScale * tree[rootID]['location'][0]
+    y = yScale * tree[rootID]['location'][1]
     c = (1,1,1) if nearestBranch == -1 else LINE_COLORS[nearestBranch % LINE_COLOR_COUNT]
     ax.scatter(x, y, s=150, c=[(c[0], c[1], c[2], 0.6)], marker='o')
-    
+
     for branch in range(np.min(branchIDs), np.max(branchIDs) + 1):
-        x = nodeXYZ[branchIDs == branch, 0] * _SCALE
-        y = nodeXYZ[branchIDs == branch, 1] * _SCALE
+        x = xScale * nodeXYZ[branchIDs == branch, 0]
+        y = yScale * nodeXYZ[branchIDs == branch, 1]
         c = (1,1,1,0.6) if branch == -1 else LINE_COLORS[branch % LINE_COLOR_COUNT]
         s = 16 if branch == -1 else 36
         ax.scatter(x, y, c=[c], s=s)
 
-    lines = _genLines(tree, rootID, scale=_SCALE)
+    lines = _genLines(tree, rootID, scale=scale, flipY=flipY)
     lineCollection = mc.LineCollection(lines, colors=[(1,1,1,0.8)], linewidths=1)
     ax.add_collection(lineCollection)
 
     if savePath is not None:
         fig.savefig(savePath)
-   
+
 # Scatter plot of all samples from traces from a filopodia tip vs. filopodia base.
 def plotBaseTipScatter(baseTrace, tipTrace, title=None, **kwargs):
     fig, (ax) = plt.subplots(1, 1)
     if title is not None:
         ax.set_title(title)
-    
+
     ax.set_aspect('equal')
     ax.scatter(baseTrace, tipTrace, **kwargs)
     ax.set_xlabel('Base DF/F0')
     ax.set_ylabel('Tip DF/F0')
-    
+
     (xLo, xHi) = ax.get_xlim()
     (yLo, yHi) = ax.get_ylim()
     bounds = [max(xLo, yLo), min(xHi, yHi)]
-    ax.plot(bounds, bounds, c='k', label='Base = Tip') 
-    ax.legend() 
+    ax.plot(bounds, bounds, c='k', label='Base = Tip')
+    ax.legend()
 
 def _buildStimAlpha(n, stim):
     if stim is None:
@@ -373,16 +373,18 @@ def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, stim=None, stimXY=(0,0
     # progressBar.close()
     print ("Saved!")
 
-def _genLines(nodes, nodeAt, scale):
+def _genLines(nodes, nodeAt, scale, flipY):
+    scales = np.array([scale, scale * (-1 if flipY else 1)])
     fullNode = nodes[nodeAt]
     lineList = []
     if 'children' in fullNode:
         for child in fullNode['children']:
             childId = child['id']
-            lineList.append(
-                [fullNode['location'][:2] * scale, nodes[childId]['location'][:2] * scale]
-            )
-            lineList.extend(_genLines(nodes, childId, scale))
+            lineList.append([
+                fullNode['location'][:2] * scales,
+                nodes[childId]['location'][:2] * scales
+            ])
+            lineList.extend(_genLines(nodes, childId, scale, flipY))
     return lineList
 
 # Shows raw intensity across the 11 (or whatever) pixel line scanned around the POI,
@@ -402,7 +404,7 @@ def kymograph(kymoData, hz, smooth=False, title=None, widthInches=10, heightInch
     ax.set_xlabel("Pixel offset")
     _plotIntensityOnto(ax, kymoData[::-1])
     ax.figure.set_size_inches(widthInches, heightInches)
-    
+
     halfSize = kymoData.shape[1]//2
     def _yLabelFormatter(y, pos):
         y = kymoData.shape[0] - y # top left = first sample, so invert
@@ -410,8 +412,6 @@ def kymograph(kymoData, hz, smooth=False, title=None, widthInches=10, heightInch
     ax.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%d" % (x - halfSize)))
     ax.get_yaxis().set_major_formatter(FuncFormatter(_yLabelFormatter))
 
-
-    
 # Debug helper to print tree strucuture to commandline:
 def printTree(nodeAt, nodes, indent=''):
     print (indent + str(nodeAt))
