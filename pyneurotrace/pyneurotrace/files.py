@@ -1,4 +1,7 @@
 import numpy as np
+import os
+
+from .morphology import treePostProcessing
 
 # Denotes the start of stimulus index lines in metadata.
 STIM_INDEX_KEY = '#STIM_START_STOP_INDICES'
@@ -123,6 +126,105 @@ def loadKymograph(path, pxlPerNode=11):
     result = {}
     for i in range(0, data.shape[1], pxlPerNode):
         result[data[0, i]] = data[1:, i:(i+pxlPerNode)]
+    return result
+    
+"""
+Loads as many of the above as possible for a single step of an experiment.
+
+:param stepPath: Path to EXPT.TXT raw data traces
+:param metaPath: Path to metadata file containing sample rate, stim times, and pixel sizes.
+:param treePath: Path to tree structure file.
+:param xyzsPath: (optional) Path to mapping from ID to x/y/z location of all points in the tree.
+:param kymoPath: (optional) Path to kymograph intensity time series for all scanned points.
+"""
+def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, convertXYZtoPx=False):
+    MAX_VOLUME_HZ = 20 # Hz above this are planar scans, below this are volume scans.
+    
+    # Load XYZ separately if available
+    if xyzsPath is not None:
+        traceIDs, _, rawData = load2PData(stepPath)
+        nodeIDs, xyz = loadNodeXYZ(xyzsPath)
+    else: 
+        nodeIDs, xyz, rawData = load2PData(stepPath)
+        traceIDs = np.copy(nodeIDs)
+    stim, hz, xySizeM, zStackLocations = loadMetadata(metaPath)
+    if convertXYZtoPx:
+        xyz = worldToPixelXYZ(xyz, xySizeM, zStackLocations)
+        
+    rootID, tree = loadTreeStructure(treePath)
+    nodeIDs, xyz, traceIDs, traceBranches, rawData, branchIDs, branchIDMap = \
+        treePostProcessing(nodeIDs, xyz, traceIDs, rawData, rootID, tree)
+    
+    kymoData = None
+    if kymoPath is not None:
+        kymoData = loadKymograph(kymoPath, pxlPerNode=11)
+    
+    return {
+        'nodeIDs': nodeIDs,
+        'xyz': xyz,
+        'rawData': rawData,
+        'traceIDs': traceIDs,
+        'traceBranches': traceBranches,
+        'stim': stim,
+        'hz': hz,
+        'rootID': rootID,
+        'tree': tree,
+        'branches': np.array(branchIDs),
+        'planar': hz > MAX_VOLUME_HZ,
+        'kymoData': kymoData
+    }
+
+"""
+Loads an entire hybrid experiment from a folder, containing many scan results.
+
+:param rootPath: Folder to load all the steps from
+:param loadKymoData: Whether to load kymographs. Off by default as they're slow to load.
+"""
+def loadHybrid(rootPath, loadKymoData=False, convertXYZtoPx=False):
+    MAX_STEP_COUNT = 100 # Assume all experiments have fewer steps than this.
+    stepData = {}
+    
+    files = os.listdir(rootPath)
+    lastTreePath = None
+    for step in range(MAX_STEP_COUNT):
+        stepPath = os.path.join(rootPath, "step_%d_EXPT.TXT" % step)
+        metaPath = os.path.join(rootPath, "rscan_metadata_step_%d.txt" % step)
+        treePath = os.path.join(rootPath, "interp-neuron-step-%d.txt" % (step - 1))
+        xyzsPath = os.path.join(rootPath, "node_xyz_step_%d.txt" % step)
+        kymoPath = os.path.join(rootPath, "kymograph_step_%d.txt" % step)
+        if not os.path.isfile(stepPath) or not os.path.isfile(metaPath):
+            continue
+        if treePath is None or not os.path.isfile(treePath):
+            treePath = lastTreePath
+        if treePath is None or not os.path.isfile(treePath):
+            treePath = os.path.join(rootPath, "interp-neuron-.txt")
+        if treePath is None or not os.path.isfile(treePath):
+            continue
+        if not os.path.isfile(xyzsPath):
+            xyzsPath = None
+        if not loadKymoData or not os.path.isfile(kymoPath):
+            kymoPath = None
+        stepData[step] = loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, convertXYZtoPx)
+        lastTreePath = treePath
+    return stepData
+    
+# Given a list of values, and a target find the index of the value closest to it.
+def _closestIdx(target, values):
+    bestIdx = 0
+    for i in range(1, len(values)):
+        if np.abs(values[i] - target) < np.abs(values[bestIdx] - target):
+            bestIdx = i
+    return bestIdx
+
+# Given XYZ in world location, and XY->px plus Z px locations, convert into pixel XYZ
+def _worldToPixelXYZ(xyz, xySizeM, zStackLocations):
+    result = np.copy(xyz)
+    for r in range(xyz.shape[0]):
+        xM, yM, zM = xyz[r]
+        xPx = xM / xySizeM
+        yPx = yM / xySizeM
+        zPx = closestIdx(zM, zStackLocations)
+        result[r] = (xPx, yPx, zPx)
     return result
     
 # Given lines and the current offset, verify the lines are the correct type, and return the values
