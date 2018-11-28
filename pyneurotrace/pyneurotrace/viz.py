@@ -295,21 +295,21 @@ def _buildStimAlpha(n, stim):
         stimAlpha[stim[i][0]:(stim[i][1] + 1)] = 1.0
     return stimAlpha
 
-def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, stim=None, stimXY=(0,0), radius=0.005, savePath=None):
+def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, flipY=False, stim=None, stimXY=(0,0), radius=0.005, savePath=None, scale=1):
+    scales = np.array([scale, scale * (-1 if flipY else 1)])
     stimAlpha = _buildStimAlpha(traceData.shape[1], stim)
 
     if (hz < 10):
         print ("%d hz too small for output video, increasing..." % hz)
         hz = hz * 3
 
-    _SCALE = 1 # 10000
     DOWNSAMPLE = 1
     hz = hz // DOWNSAMPLE
     traceData = traceData[:, ::DOWNSAMPLE]
     traceData = traceData / np.max(traceData)
     nFrames = traceData.shape[1]
 
-    xys = [(nodeXYZ[i, 0] * _SCALE, nodeXYZ[i, 1] * _SCALE) for i in range(nodeXYZ.shape[0])]
+    xys = [(nodeXYZ[i, 0] * scales[0], nodeXYZ[i, 1] * scales[1]) for i in range(nodeXYZ.shape[0])]
     xs, ys = zip(*xys)
 
     PAD = 0.02
@@ -329,7 +329,7 @@ def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, stim=None, stimXY=(0,0
     ax.get_yaxis().set_visible(False)
 
     # Connections in the tree:
-    lines = _genLines(tree, rootID, scale=_SCALE)
+    lines = _genLines(tree, rootID, scale=scale, flipY=flipY)
     ax.add_collection(mc.LineCollection(lines, colors=[(0.5,0.5,0.5,0.25)], linewidths=1))
 
     ax.set_xlim(xlim)
