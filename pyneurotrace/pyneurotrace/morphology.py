@@ -23,7 +23,8 @@ def treePostProcessing(nodeIDs, nodeXYZ, traceIDs, data, rootID, tree):
         nodeXYZ = nodeXYZ[nodeIDOrder]
     data = data[traceIDOrder]
     finalTraceIDs = np.array(traceIDs)[traceIDOrder].tolist()
-    return nodeIDs, nodeXYZ, finalTraceIDs, traceBranches, data, branchIDs, branchIDMap
+    finalTraceBranches = np.array(traceBranches)[traceIDOrder].tolist()
+    return nodeIDs, nodeXYZ, finalTraceIDs, finalTraceBranches, data, branchIDs, branchIDMap
 
 def buildBranchIDMap(nodeID, nodes, splitAtBranch=False):
     result = {}
