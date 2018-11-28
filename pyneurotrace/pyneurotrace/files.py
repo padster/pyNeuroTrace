@@ -149,7 +149,7 @@ def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, convertXYZt
         traceIDs = np.copy(nodeIDs)
     stim, hz, xySizeM, zStackLocations = loadMetadata(metaPath)
     if convertXYZtoPx:
-        xyz = worldToPixelXYZ(xyz, xySizeM, zStackLocations)
+        xyz = _worldToPixelXYZ(xyz, xySizeM, zStackLocations)
         
     rootID, tree = loadTreeStructure(treePath)
     nodeIDs, xyz, traceIDs, traceBranches, rawData, branchIDs, branchIDMap = \
@@ -223,7 +223,7 @@ def _worldToPixelXYZ(xyz, xySizeM, zStackLocations):
         xM, yM, zM = xyz[r]
         xPx = xM / xySizeM
         yPx = yM / xySizeM
-        zPx = closestIdx(zM, zStackLocations)
+        zPx = _closestIdx(zM, zStackLocations)
         result[r] = (xPx, yPx, zPx)
     return result
     
