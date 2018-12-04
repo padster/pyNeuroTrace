@@ -231,7 +231,7 @@ def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace
     if savePath is not None:
         fig.savefig(savePath)
 
-def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, title=None, flipY=False, scale=10000, savePath=None):
+def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs=None, colors=None, title=None, flipY=False, scale=10000, savePath=None, lineAlpha=0.8):
     xScale, yScale = scale, scale * (-1 if flipY else 1)
     fig, ax = plt.subplots(1, 1)
     ax.patch.set_facecolor('black')
@@ -240,7 +240,13 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, title=None, flipY=Fals
     ax.get_yaxis().set_visible(False)
     if title is not None:
         ax.set_title(title)
-
+        
+    if colors is None and branchIDs is not None:
+        colors = []
+        for branchID in branchIDs:
+            color = (1,1,1,0.6) if branchID == -1 else LINE_COLORS[branchID % LINE_COLOR_COUNT]
+            colors.append(color)
+        
     # First find the closest branch to the soma, and plot it bigger in that colour
     loc = tree[rootID]['location']
     nearestBranch, nearestDelta = 0, 1e9
@@ -248,21 +254,26 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs, title=None, flipY=Fals
         delta = np.linalg.norm(list(a - b for a, b in zip(nodeXYZ[i], loc)))
         if delta < nearestDelta:
             nearestDelta = delta
-            nearestBranch = branchIDs[i]
+            nearestColor = colors[i]
     x = xScale * tree[rootID]['location'][0]
     y = yScale * tree[rootID]['location'][1]
-    c = (1,1,1) if nearestBranch == -1 else LINE_COLORS[nearestBranch % LINE_COLOR_COUNT]
-    ax.scatter(x, y, s=150, c=[(c[0], c[1], c[2], 0.6)], marker='o')
+    #c = (1,1,1) if nearestBranch == -1 else LINE_COLORS[nearestBranch % LINE_COLOR_COUNT]
+    ax.scatter(x, y, s=150, c=[(nearestColor[0], nearestColor[1], nearestColor[2], 0.6)], marker='o')
 
-    for branch in range(np.min(branchIDs), np.max(branchIDs) + 1):
-        x = xScale * nodeXYZ[branchIDs == branch, 0]
-        y = yScale * nodeXYZ[branchIDs == branch, 1]
-        c = (1,1,1,0.6) if branch == -1 else LINE_COLORS[branch % LINE_COLOR_COUNT]
-        s = 16 if branch == -1 else 36
-        ax.scatter(x, y, c=[c], s=s)
+    if branchIDs is not None:
+        for branch in range(np.min(branchIDs), np.max(branchIDs) + 1):
+            x = xScale * nodeXYZ[branchIDs == branch, 0]
+            y = yScale * nodeXYZ[branchIDs == branch, 1]
+            c = (1,1,1,0.6) if branch == -1 else LINE_COLORS[branch % LINE_COLOR_COUNT]
+            s = 16 if branch == -1 else 36
+            ax.scatter(x, y, c=[c], s=s)
+    else:
+        x = xScale * nodeXYZ[:, 0]
+        y = yScale * nodeXYZ[:, 1]
+        ax.scatter(x, y, c=colors, s=36)
 
     lines = _genLines(tree, rootID, scale=scale, flipY=flipY)
-    lineCollection = mc.LineCollection(lines, colors=[(1,1,1,0.8)], linewidths=1)
+    lineCollection = mc.LineCollection(lines, colors=[(1,1,1,lineAlpha)], linewidths=1)
     ax.add_collection(lineCollection)
 
     if savePath is not None:
