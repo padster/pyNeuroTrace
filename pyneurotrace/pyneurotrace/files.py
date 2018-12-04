@@ -57,7 +57,7 @@ def loadMetadata(path):
         xySizeM = float(lines[lines.index(PIXEL_SIZE_KEY) + 1])
 
     zStackLocations = []
-    if Z_STACK_LOCATIONS_KEY:
+    if Z_STACK_LOCATIONS_KEY in lines:
         at = lines.index(Z_STACK_LOCATIONS_KEY) + 1
         while at < len(lines):
             if lines[at][0] == '#':
@@ -136,9 +136,13 @@ Loads as many of the above as possible for a single step of an experiment.
 :param treePath: Path to tree structure file.
 :param xyzsPath: (optional) Path to mapping from ID to x/y/z location of all points in the tree.
 :param kymoPath: (optional) Path to kymograph intensity time series for all scanned points.
+:param volumeXYZSource: (optional) Source for position data if not available for all points (e.g. planar scan)
 """
-def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, convertXYZtoPx=False):
+def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, volumeXYZSource, convertXYZtoPx=False):
     MAX_VOLUME_HZ = 20 # Hz above this are planar scans, below this are volume scans.
+    
+    stim, hz, xySizeM, zStackLocations = loadMetadata(metaPath)
+    isPlanar = hz > MAX_VOLUME_HZ
     
     # Load XYZ separately if available
     if xyzsPath is not None:
@@ -147,7 +151,12 @@ def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, convertXYZt
     else: 
         nodeIDs, xyz, rawData = load2PData(stepPath)
         traceIDs = np.copy(nodeIDs)
-    stim, hz, xySizeM, zStackLocations = loadMetadata(metaPath)
+        # Copy across from the last volume scan
+        if isPlanar and volumeXYZSource is not None:
+            print ('copying from old')
+            nodeIDs = np.copy(volumeXYZSource['nodeIDs'])
+            xyz = np.copy(volumeXYZSource['xyz'])
+
     if convertXYZtoPx:
         xyz = _worldToPixelXYZ(xyz, xySizeM, zStackLocations)
         
@@ -170,7 +179,7 @@ def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, convertXYZt
         'rootID': rootID,
         'tree': tree,
         'branches': np.array(branchIDs),
-        'planar': hz > MAX_VOLUME_HZ,
+        'planar': isPlanar,
         'kymoData': kymoData
     }
 
@@ -180,18 +189,20 @@ Loads an entire hybrid experiment from a folder, containing many scan results.
 :param rootPath: Folder to load all the steps from
 :param loadKymoData: Whether to load kymographs. Off by default as they're slow to load.
 """
-def loadHybrid(rootPath, loadKymoData=False, convertXYZtoPx=False):
+def loadHybrid(rootPath, loadKymoData=False, convertXYZtoPx=False, getPlanarXYZFromVolume=False):
     MAX_STEP_COUNT = 100 # Assume all experiments have fewer steps than this.
     stepData = {}
     
     files = os.listdir(rootPath)
     lastTreePath = None
+    lastVolume = None
     for step in range(MAX_STEP_COUNT):
         stepPath = os.path.join(rootPath, "step_%d_EXPT.TXT" % step)
         metaPath = os.path.join(rootPath, "rscan_metadata_step_%d.txt" % step)
         treePath = os.path.join(rootPath, "interp-neuron-step-%d.txt" % (step - 1))
         xyzsPath = os.path.join(rootPath, "node_xyz_step_%d.txt" % step)
         kymoPath = os.path.join(rootPath, "kymograph_step_%d.txt" % step)
+        volumeXYZSource = None
         if not os.path.isfile(stepPath) or not os.path.isfile(metaPath):
             continue
         if treePath is None or not os.path.isfile(treePath):
@@ -202,10 +213,15 @@ def loadHybrid(rootPath, loadKymoData=False, convertXYZtoPx=False):
             continue
         if not os.path.isfile(xyzsPath):
             xyzsPath = None
+            # Load nodes and xyz from previous volume if no file with all xyz exists:
+            volumeXYZSource = lastVolume if getPlanarXYZFromVolume else None
         if not loadKymoData or not os.path.isfile(kymoPath):
             kymoPath = None
-        stepData[step] = loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, convertXYZtoPx)
+       
+        stepData[step] = loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, volumeXYZSource, convertXYZtoPx)
         lastTreePath = treePath
+        if not stepData[step]['planar']:
+            lastVolume = stepData[step]
     return stepData
     
 # Given a list of values, and a target find the index of the value closest to it.
