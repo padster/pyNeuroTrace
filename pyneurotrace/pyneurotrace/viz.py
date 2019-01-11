@@ -231,8 +231,17 @@ def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace
     if savePath is not None:
         fig.savefig(savePath)
 
-def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs=None, colors=None, title=None, flipY=False, scale=10000, savePath=None, lineAlpha=0.8):
-    xScale, yScale = scale, scale * (-1 if flipY else 1)
+def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs=None, colors=None, title=None, flipY=False, scale=10000, savePath=None, lineAlpha=0.8, flatten='Z'):
+    # Default to flatten Z
+    idxA, idxB = 0, 1 # X, Y
+    scaleA, scaleB = scale, scale * (-1 if flipY else 1)
+    if flatten == 'X':
+        idxA, idxB = 1, 2 # Y, Z
+        scaleA, scaleB = scale * (-1 if flipY else 1), scale
+    elif flatten == 'Y':
+        idxA, idxB = 0, 2 # X, Z
+        scaleA, scaleB = scale, scale
+   
     fig, ax = plt.subplots(1, 1)
     ax.patch.set_facecolor('black')
     ax.set_aspect('equal')
@@ -255,24 +264,24 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs=None, colors=None, titl
         if delta < nearestDelta:
             nearestDelta = delta
             nearestColor = colors[i]
-    x = xScale * tree[rootID]['location'][0]
-    y = yScale * tree[rootID]['location'][1]
+    x = scaleA * tree[rootID]['location'][idxA]
+    y = scaleB * tree[rootID]['location'][idxB]
     #c = (1,1,1) if nearestBranch == -1 else LINE_COLORS[nearestBranch % LINE_COLOR_COUNT]
     ax.scatter(x, y, s=150, c=[(nearestColor[0], nearestColor[1], nearestColor[2], 0.6)], marker='o')
 
     if branchIDs is not None:
         for branch in range(np.min(branchIDs), np.max(branchIDs) + 1):
-            x = xScale * nodeXYZ[branchIDs == branch, 0]
-            y = yScale * nodeXYZ[branchIDs == branch, 1]
+            x = scaleA * nodeXYZ[branchIDs == branch, idxA]
+            y = scaleB * nodeXYZ[branchIDs == branch, idxB]
             c = (1,1,1,0.6) if branch == -1 else LINE_COLORS[branch % LINE_COLOR_COUNT]
             s = 16 if branch == -1 else 36
             ax.scatter(x, y, c=[c], s=s)
     else:
-        x = xScale * nodeXYZ[:, 0]
-        y = yScale * nodeXYZ[:, 1]
+        x = scaleA * nodeXYZ[:, idxA]
+        y = scaleB * nodeXYZ[:, idxB]
         ax.scatter(x, y, c=colors, s=36)
 
-    lines = _genLines(tree, rootID, scale=scale, flipY=flipY)
+    lines = _genLines(tree, rootID, scale=scale, flipY=flipY, flatten=flatten)
     lineCollection = mc.LineCollection(lines, colors=[(1,1,1,lineAlpha)], linewidths=1)
     ax.add_collection(lineCollection)
 
@@ -306,7 +315,7 @@ def _buildStimAlpha(n, stim):
         stimAlpha[stim[i][0]:(stim[i][1] + 1)] = 1.0
     return stimAlpha
 
-def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, flipY=False, stim=None, stimXY=(0,0), radius=0.005, savePath=None, scale=1):
+def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, flipY=False, stim=None, stimXY=(0,0), radius=0.005, savePath=None, scale=1, flatten='Z'):
     scales = np.array([scale, scale * (-1 if flipY else 1)])
     stimAlpha = _buildStimAlpha(traceData.shape[1], stim)
 
@@ -384,18 +393,27 @@ def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, flipY=False, stim=None
     # progressBar.close()
     print ("Saved!")
 
-def _genLines(nodes, nodeAt, scale, flipY):
+def _genLines(nodes, nodeAt, scale, flipY, flatten='Z'):
+    # Default to flatten Z
     scales = np.array([scale, scale * (-1 if flipY else 1)])
+    selector = [True, True, False]
+    if flatten == 'X':
+        scales = np.array([scale * (-1 if flipY else 1), scale])
+        selector = [False, True, True]
+    elif flatten == 'Y':
+        scales = np.array([scale, scale])
+        selector = [True, False, True]
+        
     fullNode = nodes[nodeAt]
     lineList = []
     if 'children' in fullNode:
         for child in fullNode['children']:
             childId = child['id']
             lineList.append([
-                fullNode['location'][:2] * scales,
-                nodes[childId]['location'][:2] * scales
+                fullNode['location'][selector] * scales,
+                nodes[childId]['location'][selector] * scales
             ])
-            lineList.extend(_genLines(nodes, childId, scale, flipY))
+            lineList.extend(_genLines(nodes, childId, scale, flipY, flatten))
     return lineList
 
 # Shows raw intensity across the 11 (or whatever) pixel line scanned around the POI,
