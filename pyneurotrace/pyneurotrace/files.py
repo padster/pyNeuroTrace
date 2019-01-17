@@ -138,7 +138,7 @@ Loads as many of the above as possible for a single step of an experiment.
 :param kymoPath: (optional) Path to kymograph intensity time series for all scanned points.
 :param volumeXYZSource: (optional) Source for position data if not available for all points (e.g. planar scan)
 """
-def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, volumeXYZSource, convertXYZtoPx=False):
+def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, volumeXYZSource, convertXYZtoPx=False, normalizeXYZ=False):
     MAX_VOLUME_HZ = 20 # Hz above this are planar scans, below this are volume scans.
     
     stim, hz, xySizeM, zStackLocations = loadMetadata(metaPath)
@@ -159,6 +159,8 @@ def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, volumeXYZSo
 
     if convertXYZtoPx:
         xyz = _worldToPixelXYZ(xyz, xySizeM, zStackLocations)
+    elif normalizeXYZ:
+        xyz = xyz - np.mean(xyz, axis=0, keepdims=True)
         
     rootID, tree = loadTreeStructure(treePath)
     nodeIDs, xyz, traceIDs, traceBranches, rawData, branchIDs, branchIDMap = \
@@ -189,7 +191,7 @@ Loads an entire hybrid experiment from a folder, containing many scan results.
 :param rootPath: Folder to load all the steps from
 :param loadKymoData: Whether to load kymographs. Off by default as they're slow to load.
 """
-def loadHybrid(rootPath, loadKymoData=False, convertXYZtoPx=False, getPlanarXYZFromVolume=False):
+def loadHybrid(rootPath, loadKymoData=False, convertXYZtoPx=False, getPlanarXYZFromVolume=False, normalizeXYZ=False):
     MAX_STEP_COUNT = 100 # Assume all experiments have fewer steps than this.
     stepData = {}
     
@@ -217,8 +219,7 @@ def loadHybrid(rootPath, loadKymoData=False, convertXYZtoPx=False, getPlanarXYZF
             volumeXYZSource = lastVolume if getPlanarXYZFromVolume else None
         if not loadKymoData or not os.path.isfile(kymoPath):
             kymoPath = None
-       
-        stepData[step] = loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, volumeXYZSource, convertXYZtoPx)
+        stepData[step] = loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, volumeXYZSource, convertXYZtoPx, normalizeXYZ)
         lastTreePath = treePath
         if not stepData[step]['planar']:
             lastVolume = stepData[step]
