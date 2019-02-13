@@ -8,21 +8,27 @@ from IPython.display import display, HTML
 from tqdm import tqdm_notebook
 
 # Show a dialog selection box to the user so they can pick one file.
-def filePicker(prompt="Select file", extension=""):
-    app = QtWidgets.QApplication([dir])
-    fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, prompt, '.', extension)
+def filePicker(prompt="Select file", extension="", defaultPath='.'):
+    if os.path.isfile(defaultPath):
+        defaultPath = os.path.dirname(defaultPath)
+    app = QtWidgets.QApplication([])
+    fname, _ = QtWidgets.QFileDialog.getOpenFileName(None, prompt, defaultPath, extension)
     return str(fname)
     
 # Dialog for user to select path of *new* save file
-def newFilePicker(prompt="New file"):
-    app = QtWidgets.QApplication([dir])
-    fname, _ = QtWidgets.QFileDialog.getSaveFileName(None, prompt, '.')
+def newFilePicker(prompt="New file", defaultPath='.'):
+    if os.path.isfile(defaultPath):
+        defaultPath = os.path.dirname(defaultPath)
+    app = QtWidgets.QApplication([])
+    fname, _ = QtWidgets.QFileDialog.getSaveFileName(None, prompt, defaultPath)
     return str(fname)
 
 # Show a folder selection dialog to the user and return the path.
-def folderPicker(prompt="Output Folder"):
-    app = QtWidgets.QApplication([dir])
-    fname = QtWidgets.QFileDialog.getExistingDirectory(None, prompt, '.')
+def folderPicker(prompt="Output Folder", defaultPath='.'):
+    if os.path.isfile(defaultPath):
+        defaultPath = os.path.dirname(defaultPath)
+    app = QtWidgets.QApplication([])
+    fname = QtWidgets.QFileDialog.getExistingDirectory(None, prompt, defaultPath)
     return str(fname)
     
 # Display data in multiple tabs in the same output area.
