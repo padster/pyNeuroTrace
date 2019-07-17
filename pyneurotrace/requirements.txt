@@ -1,3 +1,8 @@
+ipython
+ipywidgets
 matplotlib
 numpy
 oasis
+PyQt5
+scipy
+tqdm
