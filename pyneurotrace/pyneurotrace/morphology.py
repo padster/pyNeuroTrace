@@ -9,7 +9,12 @@ def treePostProcessing(nodeIDs, nodeXYZ, traceIDs, data, rootID, tree):
     # 2) Calculate branches for each node
     branchIDMap = buildBranchIDMap(rootID, tree, splitAtBranch=True)
     branchIDs = [branchIDMap[nodeID] for nodeID in nodeIDs]
-    traceBranches = [branchIDMap[traceID] for traceID in traceIDs]
+    traceBranches = []
+    for traceID in traceIDs:
+        if traceID in branchIDMap:
+            traceBranches.append(branchIDMap[traceID])
+        else:
+            traceBranches.append(-1)
 
     # 3) Reorder the nodes by branch
     nodeIDOrder = [i for i in range(len(nodeIDs))]
@@ -78,8 +83,8 @@ def treeToFiloTipAndBase(nodeIDs, nodeXYZ, tree, rootID, filoDist=5.0):
             for child in tree[nodeAtID]['children']:
                 pNext = nodeXYZ[nodeIDs.index(child['id'])]
                 dist = np.linalg.norm(pNext - pAt)
-                # Note: Base is the first in the filo, not the parent as it may have multiple.
-                _filoInner(child['id'], child['id'], dist)
+                # NO LONGER APPLIES: # Note: Base is the first in the filo, not the parent as it may have multiple.
+                _filoInner(child['id'], child['id'], dist) #nodeAtID, dist)
         # Filopodia tip (scale from m to um)
         elif (branchDist * 1e6) <= filoDist:
             mapping[branchStartID] = -nextBranchID[0]
