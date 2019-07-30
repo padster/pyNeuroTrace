@@ -33,8 +33,10 @@ def folderPicker(prompt="Output Folder", defaultPath='.'):
     
 # Display data in multiple tabs in the same output area.
 # Performed as a mapping, using dictionary/list and a custom map function.
-def showTabs(data, showOnTabFunc, titles=None):
+def showTabs(data, showOnTabFunc, titles=None, progressBar=False):
     dataIsList = isinstance(data, list)
+    
+    progressBarFunc = tqdm_notebook if progressBar else (lambda x: x)
     
     # Default titles if none provided.
     if titles is None:
@@ -42,6 +44,10 @@ def showTabs(data, showOnTabFunc, titles=None):
             titles = [str(i) for i in range(len(data))]
         else:
             titles = ['%s: Step %d' % ('P' if value['planar'] else 'V', key) for (key, value) in data.items()]
+    
+    pbar = None
+    if progressBar:
+        pbar = tqdm_notebook(total=len(data))
     
     # Create tabs, set their titles.
     allTabs = [ipywidgets.Output() for i in range(len(data))]
@@ -56,8 +62,15 @@ def showTabs(data, showOnTabFunc, titles=None):
             with allTabs[idx]:
                 if showOnTabFunc(idx, idx, value) is None:
                     plt.show()
+                if pbar is not None:
+                    pbar.update(1)
     else:
-        for idx, (key, value) in enumerate(data.items()):
+        for idx, (key, value) in progressBarFunc(enumerate(data.items())):
             with allTabs[idx]:
                 if showOnTabFunc(idx, key, value) is None:
                     plt.show()
+                if pbar is not None:
+                    pbar.update(1)
+    
+    if pbar is not None:
+        pbar.close()
