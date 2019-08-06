@@ -291,8 +291,11 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs=None, colors=None, titl
             nearestColor = colors[i]
     x = scaleA * tree[rootID]['location'][idxA]
     y = scaleB * tree[rootID]['location'][idxB]
-    #c = (1,1,1) if nearestBranch == -1 else LINE_COLORS[nearestBranch % LINE_COLOR_COUNT]
-    ax.scatter(x, y, s=150, c=[(nearestColor[0], nearestColor[1], nearestColor[2], 0.6)], marker='o')
+
+    somaCol = nearestColor
+    if isinstance(nearestColor, list):
+        somaCol = (nearestColor[0], nearestColor[1], nearestColor[2], 0.6)
+    ax.scatter(x, y, s=150, c=[somaCol], marker='o')
 
     if branchIDs is not None:
         for branch in range(np.min(branchIDs), np.max(branchIDs) + 1):
