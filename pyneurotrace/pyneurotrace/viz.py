@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import FuncFormatter
-from tqdm import tqdm_notebook
+from tqdm import tqdm, tqdm_notebook
 
 import matplotlib.patches as patches
 from matplotlib import collections as mc
@@ -9,6 +9,17 @@ from matplotlib.animation import FuncAnimation
 import matplotlib.animation as animation
 
 from .analysis import epochAverage, fitDoubleExp
+
+import matplotlib as mpl
+
+"""
+mpl.rcParams['text.color'] = 'w'
+mpl.rcParams['axes.labelcolor'] = 'w'
+mpl.rcParams['xtick.color'] = 'w'
+mpl.rcParams['axes.edgecolor'] = 'w'
+mpl.rcParams['figure.facecolor'] = 'black'
+"""
+plt.style.use('dark_background')
 
 PAD = 0.08
 
@@ -330,3 +341,59 @@ def printTree(nodeAt, nodes, indent=''):
     print (indent + str(nodeAt))
     for child in nodes[nodeAt]['children']:
         printTree(child['id'], nodes, indent + ' ')
+
+def scrollingAnimation(data, hz, branches, stim, title, savePath):
+    fig, ((aBranches, aData), (aBlank, aStim)) = plt.subplots(2, 2, figsize=(8,10), gridspec_kw = {'height_ratios':[8, 1], 'width_ratios':[1, 20]})
+    fig.suptitle(title)
+    fig.subplots_adjust(left=PAD/2, right=(1 - PAD/2), top=(1 - PAD), bottom=PAD)
+
+    aData.get_yaxis().set_visible(False)
+    aBranches.get_xaxis().set_visible(False)
+    aBranches.get_yaxis().set_visible(False)
+
+    fig.subplots_adjust(wspace=0.0)
+    _plotBranchesOnto(aBranches, branches, yLim=aData.get_ylim())
+
+    aData.get_xaxis().set_visible(False)
+    aStim.get_yaxis().set_visible(False)
+    aStim.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+    aStim.set_xlabel("Time and Stimuli")
+    fig.subplots_adjust(hspace=0.0)
+
+    if aBlank is not None:
+        aBlank.get_xaxis().set_visible(False)
+        aBlank.get_yaxis().set_visible(False)
+
+    DOWNSAMPLE = 1
+
+    samples = data.shape[1]
+
+    progressBar = tqdm(total=samples//DOWNSAMPLE)
+    aLine = aData.axvline(-1)
+
+    # HACK for intensity:
+    data[data.shape[0] - 1, 0] = np.max(data)
+
+
+    def _animFrame(i):
+        f = i * DOWNSAMPLE
+        cell = np.copy(data)
+        cell[:, f:] = 0
+        cell = cell.clip(min=0)
+        _plotIntensityOnto(aData, cell)
+        aLine.set_xdata(f)
+        cStim = stim[stim[:, 0] <= f]
+        aStim.set_xticks(cStim[:, 0])
+        _plotStimOnto(aStim, cStim, xLim=aData.get_xlim())
+
+        progressBar.update(1)
+        return fig,
+
+    intMS = DOWNSAMPLE * 1000.0 / hz
+    anim = FuncAnimation(fig, _animFrame, frames=samples//DOWNSAMPLE, blit=True, interval=intMS)
+
+    # Set up formatting for the movie files
+    print ("Saving...")
+    Writer = animation.writers['ffmpeg']
+    anim.save(savePath, writer=Writer(fps=hz/DOWNSAMPLE)) #, metadata=dict(artist='Me'), bitrate=1800))
+    # anim.save("fire.gif", dpi=80, writer='imagemagick')

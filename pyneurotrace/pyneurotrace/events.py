@@ -41,7 +41,7 @@ def cusum(data, slack=1.0):
     def _singleRowCusum(trace):
         n = len(trace)
         result = np.zeros(n)
-        means = runningMean(trace)
+        means = _runningMean(trace)
         y = 0
         for i in range(n):
             y = max(0, trace[i] - means[i] - slack)
