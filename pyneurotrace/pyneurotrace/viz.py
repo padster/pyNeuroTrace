@@ -94,7 +94,7 @@ def _plotStimOnto(ax, stim, xLim, hybridStimColours=False, isDataPlot=False):
         for stimStart in stim[:, 0]:
             ax.axvline(x=stimStart, color=(1.0, 1.0, 0.0, alpha), linestyle=ls)
 
-def plotIntensity(data, hz, branches=None, stim=None, title=None, overlayStim=False, savePath=None, hybridStimColours=True, **kwargs):
+def plotIntensity(data, hz, branches=None, stim=None, title=None, overlayStim=False, savePath=None, hybridStimColours=False, **kwargs):
     fig, aBranches, aData, aStim, aBlank = None, None, None, None, None
     if branches is None and stim is None:
         fig, (aData) = plt.subplots(1, 1)
