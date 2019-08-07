@@ -14,6 +14,11 @@ A number of options for visualising trace data are provided, including:
 * Path to save the file to
 * Arguments passed through to matplotlib (e.g. vmin/vmax intensity bounds)
 
+Note: Stimuli are all of 2D arrays of the form (S, 2),
+where each row is a stimulus, and the two entries are the start and end sample.
+By default, our custom stim protocol colours are used, but for normal stim timings
+that supports any number of stim, you can pass `hybridStimColours=False`.
+
 &nbsp;
 
 ![Line plot](https://padster.github.io/pyNeuroTrace/img/pyntLines.png)
