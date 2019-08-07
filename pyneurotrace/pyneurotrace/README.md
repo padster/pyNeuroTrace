@@ -39,6 +39,15 @@ that supports any number of stim, you can pass `hybridStimColours=False`.
 * Individual colours for points
 * Path to save the file to
 
+The tree model required for this is a mapping:
+
+    nodes = {
+      <node id>: {
+        'location': [x, y, z]
+        'children': [list of child IDs]
+      }
+    }
+
 &nbsp;
 
 Other more specialised visualisations are also available, including stim response analysis and animations. Consult viz.py file.
