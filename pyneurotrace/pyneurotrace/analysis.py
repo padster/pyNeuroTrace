@@ -12,14 +12,14 @@ def epochs(traces, hz, startSamples, secBefore, secAfter):
 def epochAverage(traces, hz, startSamples, secBefore, secAfter):
     return np.mean(epochs(traces, hz, startSamples, secBefore, secAfter), axis=0)
 
-def fitDoubleExp(y, hz, tAGuess=0.1, tBGuess=0.4):
+def fitDoubleExp(y, hz, tAGuess=0.1, tBGuess=0.4, method='trf'):
     n = len(y)
     aGuess = np.max(y)
     x = np.arange(n)
 
     def f(x, A, t0, tA, tB):
         y = np.zeros(n)
-        if not (0 < tA and tA < tB - 1e-8 and tB < 1000):
+        if not (0 < tA and tA < tB - 1e-8 and tB < 10000):
             return np.ones(n) * 1000
         scale = A * np.power(tA, tA / (tA - tB)) * np.power(tB, tB / (tB - tA)) / (tB - tA)
         for i in range(n):
@@ -28,7 +28,7 @@ def fitDoubleExp(y, hz, tAGuess=0.1, tBGuess=0.4):
                 y[i] = scale * (np.exp(-xi / tB) - np.exp(-xi / tA))
         return y
 
-    popt, _ = curve_fit(f, x, y, p0=(aGuess, 0, tAGuess * hz, tBGuess * hz))
+    popt, _ = curve_fit(f, x, y, p0=(aGuess, 0, tAGuess * hz, tBGuess * hz), method=method)
     return popt, f(x, *popt)
 
 # HACK - remove once fixed

@@ -4,7 +4,7 @@
 
 This library can be installed directly from github, using pip:
 ```
-pip3 install --upgrade "git+https://github.com/padster/pyNeuroTrace#egg=pyneurotrace&subdirectory=pyneurotrace"
+pip install --upgrade "git+https://github.com/padster/pyNeuroTrace#egg=pyneurotrace&subdirectory=pyneurotrace"
 ```
 
 ## Reading Data
