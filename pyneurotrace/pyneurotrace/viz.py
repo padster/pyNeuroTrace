@@ -187,7 +187,7 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
 
 
 def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None, title=None, secAfter=3, savePath=None, **kwargs):
-    fig, aBranches, aData = None, None, None
+    fig, aBranchesOff, aBranchesOn, aDataOff, aDataOn = None, None, None, None, None
     if branches is None:
         fig, (aDataOff, aDataOn) = plt.subplots(2, 1)
     else:
