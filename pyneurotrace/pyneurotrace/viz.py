@@ -12,15 +12,6 @@ from .analysis import epochAverage, fitDoubleExp
 
 import matplotlib as mpl
 
-"""
-mpl.rcParams['text.color'] = 'w'
-mpl.rcParams['axes.labelcolor'] = 'w'
-mpl.rcParams['xtick.color'] = 'w'
-mpl.rcParams['axes.edgecolor'] = 'w'
-mpl.rcParams['figure.facecolor'] = 'black'
-"""
-plt.style.use('dark_background')
-
 PAD = 0.08
 
 # TODO: Move into a reusable place:
@@ -95,142 +86,161 @@ def _plotStimOnto(ax, stim, xLim, hybridStimColours=False, isDataPlot=False):
             ax.axvline(x=stimStart, color=(1.0, 1.0, 0.0, alpha), linestyle=ls)
 
 def plotIntensity(data, hz, branches=None, stim=None, title=None, overlayStim=False, savePath=None, hybridStimColours=False, **kwargs):
-    fig, aBranches, aData, aStim, aBlank = None, None, None, None, None
-    if branches is None and stim is None:
-        fig, (aData) = plt.subplots(1, 1)
-    elif branches is not None and stim is None:
-        fig, (aBranches, aData) = plt.subplots(1, 2, gridspec_kw = {'width_ratios':[1, 20]})
-    elif branches is None and stim is not None:
-        fig, (aData, aStim) = plt.subplots(2, 1, gridspec_kw = {'height_ratios':[8, 1]})
-    else:
-        fig, ((aBranches, aData), (aBlank, aStim)) = plt.subplots(2, 2, gridspec_kw = {'height_ratios':[8, 1], 'width_ratios':[1, 20]})
-    fig.suptitle(title)
-    fig.subplots_adjust(left=PAD/2, right=(1 - PAD/2), top=(1 - PAD), bottom=PAD)
+    with plt.style.context(('seaborn-dark-palette')):
+        fig, aBranches, aData, aStim, aBlank = None, None, None, None, None
+        xAx, yAx = None, None
+        
+        if branches is None and stim is None:
+            fig, (aData) = plt.subplots(1, 1)
+            xAx, yAx = aData, aData
+        elif branches is not None and stim is None:
+            fig, (aBranches, aData) = plt.subplots(1, 2, gridspec_kw = {'width_ratios':[1, 20]})
+            xAx, yAx = aData, aBranches
+        elif branches is None and stim is not None:
+            fig, (aData, aStim) = plt.subplots(2, 1, gridspec_kw = {'height_ratios':[8, 1]})
+            xAx, yAx = aStim, aData
+        else:
+            fig, ((aBranches, aData), (aBlank, aStim)) = plt.subplots(2, 2, gridspec_kw = {'height_ratios':[8, 1], 'width_ratios':[1, 20]})
+            xAx, yAx = aStim, aBranches
+        fig.suptitle(title)
+        fig.subplots_adjust(left=PAD/2, right=(1 - PAD/2), top=(1 - PAD), bottom=PAD)
 
-    _plotIntensityOnto(aData, data, **kwargs)
-    if aBranches is not None:
-        aData.get_yaxis().set_visible(False)
-        aBranches.get_xaxis().set_visible(False)
-        aBranches.set_ylabel("Node ID and Branch")
+        _plotIntensityOnto(aData, data, **kwargs)
+        if aBranches is not None:
+            aData.get_yaxis().set_visible(False)
+            aBranches.get_xaxis().set_visible(False)
+            aBranches.set_ylabel("Node ID and Branch")
 
-        fig.subplots_adjust(wspace=0.0)
-        _plotBranchesOnto(aBranches, branches, yLim=aData.get_ylim())
-    else:
-        aData.set_ylabel("Node ID")
+            fig.subplots_adjust(wspace=0.0)
+            _plotBranchesOnto(aBranches, branches, yLim=aData.get_ylim())
+        else:
+            aData.set_ylabel("Node ID")
 
-    if aStim is not None:
-        aData.get_xaxis().set_visible(False)
-        aStim.get_yaxis().set_visible(False)
-        aStim.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
-        aStim.set_xticks(stim[:, 0])
-        aStim.set_xlabel("Time and Stimuli")
+        if aStim is not None:
+            aData.get_xaxis().set_visible(False)
+            aStim.get_yaxis().set_visible(False)
+            aStim.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+            aStim.set_xticks(stim[:, 0])
+            aStim.set_xlabel("Time and Stimuli")
 
-        fig.subplots_adjust(hspace=0.0)
-        _plotStimOnto(aStim, stim, xLim=aData.get_xlim(), hybridStimColours=hybridStimColours, isDataPlot=False)
-        if overlayStim:
-            _plotStimOnto(aData, stim, xLim=aData.get_xlim(), hybridStimColours=False, isDataPlot=True)
-    else:
-        aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
-        aData.set_xlabel("Time")
+            fig.subplots_adjust(hspace=0.0)
+            _plotStimOnto(aStim, stim, xLim=aData.get_xlim(), hybridStimColours=hybridStimColours, isDataPlot=False)
+            if overlayStim:
+                _plotStimOnto(aData, stim, xLim=aData.get_xlim(), hybridStimColours=False, isDataPlot=True)
+        else:
+            aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+            aData.set_xlabel("Time")
 
-    if aBlank is not None:
-        aBlank.get_xaxis().set_visible(False)
-        aBlank.get_yaxis().set_visible(False)
+        if aBlank is not None:
+            aBlank.get_xaxis().set_visible(False)
+            aBlank.get_yaxis().set_visible(False)
 
-    if savePath is not None:
-        fig.savefig(savePath)
+        if savePath is not None:
+            fig.savefig(savePath)
+            
+    return xAx, yAx
 
 def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, 
         split=True, limitSec=None, overlayStim=True, savePath=None, hybridStimColours=True):
-    fig, aData, aStim = None, None, None
-    if stim is None:
-        fig, (aData) = plt.subplots(1, 1) # gridspec_kw = {'width_ratios':[3, 1]})
-    else:
-        fig, (aData, aStim) = plt.subplots(2, 1, gridspec_kw = {'height_ratios':[8, 1]})
-    if title is not None:
-        fig.suptitle(title)
-    fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD)
+    with plt.style.context(('seaborn-dark-palette')):        
+        fig, aData, aStim = None, None, None
+        xAx, yAx = None, None
+        
+        if stim is None:
+            fig, (aData) = plt.subplots(1, 1) # gridspec_kw = {'width_ratios':[3, 1]})
+            xAx, yAx = aData, aData
+        else:
+            fig, (aData, aStim) = plt.subplots(2, 1, gridspec_kw = {'height_ratios':[8, 1]})
+            xAx, yAx = aStim, aData
+        if title is not None:
+            fig.suptitle(title)
+        fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD)
 
-    # Color by branches if required.
-    if colors is None and branches is not None:
-        colors = [(0.8,0.8,0.8) if b == -1 else LINE_COLORS[b % LINE_COLOR_COUNT] for b in branches]
+        # Color by branches if required.
+        if colors is None and branches is not None:
+            colors = [(0.8,0.8,0.8) if b == -1 else LINE_COLORS[b % LINE_COLOR_COUNT] for b in branches]
 
-    _plotLineOnto(aData, data, labels, colors, split)
+        _plotLineOnto(aData, data, labels, colors, split)
 
-    if aStim is not None:
-        aData.get_xaxis().set_visible(False)
-        aStim.get_yaxis().set_visible(False)
-        aStim.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
-        aStim.set_xticks(stim[:, 0])
-
-        fig.subplots_adjust(hspace=0.0)
-        _plotStimOnto(aStim, stim, xLim=aData.get_xlim(), hybridStimColours=hybridStimColours)
-        if overlayStim:
-            _plotStimOnto(aData, stim, xLim=aData.get_xlim(), hybridStimColours=False, isDataPlot=True)
-    else:
-        aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
-    #Disabled so we have a hacky way to see y scale
-    #if split:
-    #    aData.get_yaxis().set_visible(False)
-
-    # Cull the start/end times:
-    if limitSec is not None:
-        startTime, endTime = limitSec
-        startSample = None if startTime is None else startTime * hz
-        endSample = None if endTime is None else endTime * hz
-        aData.set_xlim(startSample, endSample)
         if aStim is not None:
-            aStim.set_xlim(startSample, endSample)
+            aData.get_xaxis().set_visible(False)
+            aStim.get_yaxis().set_visible(False)
+            aStim.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+            aStim.set_xticks(stim[:, 0])
 
-    if savePath is not None:
-        fig.savefig(savePath)
+            fig.subplots_adjust(hspace=0.0)
+            _plotStimOnto(aStim, stim, xLim=aData.get_xlim(), hybridStimColours=hybridStimColours)
+            if overlayStim:
+                _plotStimOnto(aData, stim, xLim=aData.get_xlim(), hybridStimColours=False, isDataPlot=True)
+        else:
+            aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+        #Disabled so we have a hacky way to see y scale
+        #if split:
+        #    aData.get_yaxis().set_visible(False)
+
+        # Cull the start/end times:
+        if limitSec is not None:
+            startTime, endTime = limitSec
+            startSample = None if startTime is None else startTime * hz
+            endSample = None if endTime is None else endTime * hz
+            aData.set_xlim(startSample, endSample)
+            if aStim is not None:
+                aStim.set_xlim(startSample, endSample)
+
+        if savePath is not None:
+            fig.savefig(savePath)
+            
+    return xAx, yAx
 
 
 def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None, title=None, secAfter=3, savePath=None, **kwargs):
-    fig, aBranchesOff, aBranchesOn, aDataOff, aDataOn = None, None, None, None, None
-    if branches is None:
-        fig, (aDataOff, aDataOn) = plt.subplots(2, 1)
-    else:
-        fig, ((aBranchesOff, aDataOff), (aBranchesOn, aDataOn)) = \
-            plt.subplots(2, 2, gridspec_kw = {'width_ratios':[1, 20]})
+    with plt.style.context(('seaborn-dark-palette')):   
+        fig, aBranchesOff, aBranchesOn, aDataOff, aDataOn = None, None, None, None, None
+        
+        if branches is None:
+            fig, (aDataOff, aDataOn) = plt.subplots(2, 1)
+            
+        else:
+            fig, ((aBranchesOff, aDataOff), (aBranchesOn, aDataOn)) = \
+                plt.subplots(2, 2, gridspec_kw = {'width_ratios':[1, 20]})
 
-    if title is not None:
-        fig.suptitle(title)
+        if title is not None:
+            fig.suptitle(title)
 
-    offAverage = epochAverage(data, hz, stimOffIdx, 0, secAfter)
-    onAverage  = epochAverage(data, hz,  stimOnIdx, 0, secAfter)
-    maxOn, maxOff = np.max(onAverage), np.max(offAverage)
-    if 'vmax' not in kwargs:
-        kwargs['vmax'] = max(maxOn, maxOff)
-    if 'vmin' not in kwargs:
-        kwargs['vmin'] = 0
-    aDataOff.set_title("Av. OFF stim response (%.2fs, max = %.2f/%.2f)" % (secAfter, maxOff, kwargs['vmax']))
-    aDataOn.set_title("Av. ON stim response (%.2fs, max = %.2f/%.2f)" % (secAfter, maxOn, kwargs['vmax']))
-    fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD, hspace=0.2)
+        offAverage = epochAverage(data, hz, stimOffIdx, 0, secAfter)
+        onAverage  = epochAverage(data, hz,  stimOnIdx, 0, secAfter)
+        maxOn, maxOff = np.max(onAverage), np.max(offAverage)
+        if 'vmax' not in kwargs:
+            kwargs['vmax'] = max(maxOn, maxOff)
+        if 'vmin' not in kwargs:
+            kwargs['vmin'] = 0
+        aDataOff.set_title("Av. OFF stim response (%.2fs, max = %.2f/%.2f)" % (secAfter, maxOff, kwargs['vmax']))
+        aDataOn.set_title("Av. ON stim response (%.2fs, max = %.2f/%.2f)" % (secAfter, maxOn, kwargs['vmax']))
+        fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD, hspace=0.2)
 
-    _plotIntensityOnto(aDataOff, offAverage.clip(min=0), **kwargs)
-    _plotIntensityOnto(aDataOn, onAverage.clip(min=0), **kwargs)
-    if aBranchesOff is not None:
-        aDataOff.get_yaxis().set_visible(False)
-        aDataOn.get_yaxis().set_visible(False)
-        aBranchesOff.get_xaxis().set_visible(False)
-        aBranchesOn.get_xaxis().set_visible(False)
-        aBranchesOff.set_ylabel("Node ID and Branch")
-        aBranchesOn.set_ylabel("Node ID and Branch")
+        _plotIntensityOnto(aDataOff, offAverage.clip(min=0), **kwargs)
+        _plotIntensityOnto(aDataOn, onAverage.clip(min=0), **kwargs)
+        if aBranchesOff is not None:
+            aDataOff.get_yaxis().set_visible(False)
+            aDataOn.get_yaxis().set_visible(False)
+            aBranchesOff.get_xaxis().set_visible(False)
+            aBranchesOn.get_xaxis().set_visible(False)
+            aBranchesOff.set_ylabel("Node ID and Branch")
+            aBranchesOn.set_ylabel("Node ID and Branch")
 
-        fig.subplots_adjust(wspace=0.0)
-        _plotBranchesOnto(aBranchesOff, branches, yLim=aDataOff.get_ylim())
-        _plotBranchesOnto(aBranchesOn, branches, yLim=aDataOn.get_ylim())
-    else:
-        aDataOff.set_ylabel("Node ID")
-        aDataOn.set_ylabel("Node ID")
+            fig.subplots_adjust(wspace=0.0)
+            _plotBranchesOnto(aBranchesOff, branches, yLim=aDataOff.get_ylim())
+            _plotBranchesOnto(aBranchesOn, branches, yLim=aDataOn.get_ylim())
+        else:
+            aDataOff.set_ylabel("Node ID")
+            aDataOn.set_ylabel("Node ID")
 
-    aDataOff.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
-    aDataOn.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+        aDataOff.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+        aDataOn.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
 
-    if savePath is not None:
-        fig.savefig(savePath)
-
+        if savePath is not None:
+            fig.savefig(savePath)
+            
 def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace=None, savePath=None):
     windowSz = secAfter * hz
     if vizTrace is not None:
@@ -253,19 +263,21 @@ def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace
     allP = np.array(allParams)
     allA, allT0, allTA, allTB = allP[:, 0], allP[:, 1] / hz, allP[:, 2] / hz, allP[:, 3] / hz
 
-    fig, ax = plt.subplots(2, 2, tight_layout=True)
-    ax[0][0].hist(allA)
-    ax[0][1].hist(allT0)
-    ax[1][0].hist(allTA)
-    ax[1][1].hist(allTB)
-    ax[0][0].set_title("A")
-    ax[0][1].set_title("t0")
-    ax[1][0].set_title("tA")
-    ax[1][1].set_title("tB")
-    # plt.show()
+    with plt.style.context(('seaborn-dark-palette')):   
+        fig, ax = plt.subplots(2, 2, tight_layout=True)
+        ax[0][0].hist(allA)
+        ax[0][1].hist(allT0)
+        ax[1][0].hist(allTA)
+        ax[1][1].hist(allTB)
+        ax[0][0].set_title("A")
+        ax[0][1].set_title("t0")
+        ax[1][0].set_title("tA")
+        ax[1][1].set_title("tB")
+        # plt.show()
 
-    if savePath is not None:
-        fig.savefig(savePath)
+        if savePath is not None:
+            fig.savefig(savePath)
+    return ax
 
 def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs=None, colors=None, title=None, flipY=False, scale=10000, savePath=None, lineAlpha=0.8, flatten='Z'):
     # Default to flatten Z
@@ -278,71 +290,76 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs=None, colors=None, titl
         idxA, idxB = 0, 2 # X, Z
         scaleA, scaleB = scale, scale
    
-    fig, ax = plt.subplots(1, 1)
-    ax.patch.set_facecolor('black')
-    ax.set_aspect('equal')
-    ax.get_xaxis().set_visible(False)
-    ax.get_yaxis().set_visible(False)
-    if title is not None:
-        ax.set_title(title)
+    with plt.style.context(('seaborn-dark-palette')):   
+        fig, ax = plt.subplots(1, 1)
+        ax.patch.set_facecolor('black')
+        ax.set_aspect('equal')
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        if title is not None:
+            ax.set_title(title)
+            
+        if colors is None and branchIDs is not None:
+            colors = []
+            for branchID in branchIDs:
+                color = (1,1,1,0.6) if branchID == -1 else LINE_COLORS[branchID % LINE_COLOR_COUNT]
+                colors.append(color)
+            
+        # First find the closest branch to the soma, and plot it bigger in that colour
+        loc = tree[rootID]['location']
+        nearestBranch, nearestDelta = 0, 1e9
+        for i in range(len(nodeXYZ)):
+            delta = np.linalg.norm(list(a - b for a, b in zip(nodeXYZ[i], loc)))
+            if delta < nearestDelta:
+                nearestDelta = delta
+                nearestColor = colors[i]
+        x = scaleA * tree[rootID]['location'][idxA]
+        y = scaleB * tree[rootID]['location'][idxB]
+
+        somaCol = nearestColor
+        if isinstance(nearestColor, list):
+            somaCol = (nearestColor[0], nearestColor[1], nearestColor[2], 0.6)
+        ax.scatter(x, y, s=150, c=[somaCol], marker='o')
+
+        if branchIDs is not None:
+            for branch in range(np.min(branchIDs), np.max(branchIDs) + 1):
+                x = scaleA * nodeXYZ[branchIDs == branch, idxA]
+                y = scaleB * nodeXYZ[branchIDs == branch, idxB]
+                c = (1,1,1,0.6) if branch == -1 else LINE_COLORS[branch % LINE_COLOR_COUNT]
+                s = 16 if branch == -1 else 36
+                ax.scatter(x, y, c=[c], s=s)
+        else:
+            x = scaleA * nodeXYZ[:, idxA]
+            y = scaleB * nodeXYZ[:, idxB]
+            ax.scatter(x, y, c=colors, s=36)
+
+        lines = _genLines(tree, rootID, scale=scale, flipY=flipY, flatten=flatten)
+        lineCollection = mc.LineCollection(lines, colors=[(1,1,1,lineAlpha)], linewidths=1)
+        ax.add_collection(lineCollection)
+
+        if savePath is not None:
+            fig.savefig(savePath)
         
-    if colors is None and branchIDs is not None:
-        colors = []
-        for branchID in branchIDs:
-            color = (1,1,1,0.6) if branchID == -1 else LINE_COLORS[branchID % LINE_COLOR_COUNT]
-            colors.append(color)
-        
-    # First find the closest branch to the soma, and plot it bigger in that colour
-    loc = tree[rootID]['location']
-    nearestBranch, nearestDelta = 0, 1e9
-    for i in range(len(nodeXYZ)):
-        delta = np.linalg.norm(list(a - b for a, b in zip(nodeXYZ[i], loc)))
-        if delta < nearestDelta:
-            nearestDelta = delta
-            nearestColor = colors[i]
-    x = scaleA * tree[rootID]['location'][idxA]
-    y = scaleB * tree[rootID]['location'][idxB]
-
-    somaCol = nearestColor
-    if isinstance(nearestColor, list):
-        somaCol = (nearestColor[0], nearestColor[1], nearestColor[2], 0.6)
-    ax.scatter(x, y, s=150, c=[somaCol], marker='o')
-
-    if branchIDs is not None:
-        for branch in range(np.min(branchIDs), np.max(branchIDs) + 1):
-            x = scaleA * nodeXYZ[branchIDs == branch, idxA]
-            y = scaleB * nodeXYZ[branchIDs == branch, idxB]
-            c = (1,1,1,0.6) if branch == -1 else LINE_COLORS[branch % LINE_COLOR_COUNT]
-            s = 16 if branch == -1 else 36
-            ax.scatter(x, y, c=[c], s=s)
-    else:
-        x = scaleA * nodeXYZ[:, idxA]
-        y = scaleB * nodeXYZ[:, idxB]
-        ax.scatter(x, y, c=colors, s=36)
-
-    lines = _genLines(tree, rootID, scale=scale, flipY=flipY, flatten=flatten)
-    lineCollection = mc.LineCollection(lines, colors=[(1,1,1,lineAlpha)], linewidths=1)
-    ax.add_collection(lineCollection)
-
-    if savePath is not None:
-        fig.savefig(savePath)
+    return ax
 
 # Scatter plot of all samples from traces from a filopodia tip vs. filopodia base.
 def plotBaseTipScatter(baseTrace, tipTrace, title=None, **kwargs):
-    fig, (ax) = plt.subplots(1, 1)
-    if title is not None:
-        ax.set_title(title)
+    with plt.style.context(('seaborn-dark-palette')):   
+        fig, (ax) = plt.subplots(1, 1)
+        if title is not None:
+            ax.set_title(title)
 
-    ax.set_aspect('equal')
-    ax.scatter(baseTrace, tipTrace, **kwargs)
-    ax.set_xlabel('Base DF/F0')
-    ax.set_ylabel('Tip DF/F0')
+        ax.set_aspect('equal')
+        ax.scatter(baseTrace, tipTrace, **kwargs)
+        ax.set_xlabel('Base DF/F0')
+        ax.set_ylabel('Tip DF/F0')
 
-    (xLo, xHi) = ax.get_xlim()
-    (yLo, yHi) = ax.get_ylim()
-    bounds = [max(xLo, yLo), min(xHi, yHi)]
-    ax.plot(bounds, bounds, c='k', label='Base = Tip')
-    ax.legend()
+        (xLo, xHi) = ax.get_xlim()
+        (yLo, yHi) = ax.get_ylim()
+        bounds = [max(xLo, yLo), min(xHi, yHi)]
+        ax.plot(bounds, bounds, c='k', label='Base = Tip')
+        ax.legend()
+    return ax
 
 def _buildStimAlpha(n, stim):
     if stim is None:
@@ -465,20 +482,22 @@ def kymograph(kymoData, hz, smooth=False, title=None, widthInches=10, heightInch
         kymoData = (kymoData[:, 2:] + kymoData[:, 1:-1] + kymoData[:, :-2]) / 3
         kymoData = (kymoData[2:, :] + kymoData[1:-1, :] + kymoData[:-2, :]) / 3
 
-    fig, (ax) = plt.subplots(1, 1)
-    if title is not None:
-        ax.set_title(title)
-    ax.set_ylabel("Time")
-    ax.set_xlabel("Pixel offset")
-    _plotIntensityOnto(ax, kymoData[::-1])
-    ax.figure.set_size_inches(widthInches, heightInches)
+    with plt.style.context(('seaborn-dark-palette')):   
+        fig, (ax) = plt.subplots(1, 1)
+        if title is not None:
+            ax.set_title(title)
+        ax.set_ylabel("Time")
+        ax.set_xlabel("Pixel offset")
+        _plotIntensityOnto(ax, kymoData[::-1])
+        ax.figure.set_size_inches(widthInches, heightInches)
 
-    halfSize = kymoData.shape[1]//2
-    def _yLabelFormatter(y, pos):
-        y = kymoData.shape[0] - y # top left = first sample, so invert
-        return "%.2fs" % (y / hz)
-    ax.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%d" % (x - halfSize)))
-    ax.get_yaxis().set_major_formatter(FuncFormatter(_yLabelFormatter))
+        halfSize = kymoData.shape[1]//2
+        def _yLabelFormatter(y, pos):
+            y = kymoData.shape[0] - y # top left = first sample, so invert
+            return "%.2fs" % (y / hz)
+        ax.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%d" % (x - halfSize)))
+        ax.get_yaxis().set_major_formatter(FuncFormatter(_yLabelFormatter))
+    return ax
 
 # Debug helper to print tree strucuture to commandline:
 def printTree(nodeAt, nodes, indent=''):
