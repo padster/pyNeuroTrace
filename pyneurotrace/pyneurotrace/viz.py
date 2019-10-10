@@ -51,29 +51,43 @@ def _plotBranchesOnto(ax, branches, yLim):
     branchRGB = np.expand_dims(branchRGB, axis=1)
     ax.imshow(branchRGB, interpolation='nearest', aspect='auto', origin='lower')
 
-def _stimToHybridColoursImg(stim, xLim, offV=0.0, onV=0.3, borderV=1.0, widen=1):
-    assert stim.shape[0] == 9, "Hybrid Stim needs 9 stim values, do you need hybridStimColours=False?"
+# TODO: Project-specific, should be pulled out to caller
+def hasTransitionShift(stim, hz):
+    middleStimSamples = stim[4][1] - stim[4][0]
+    middleStimMs = middleStimSamples / hz * 1000.0
+    return middleStimMs > 1000
+
+def _stimToHybridColoursImg(stim, hz, xLim, offV=0.0, onV=0.3, borderV=1.0, widen=1):
+    assert stim.shape[0] == 9, "Hybrid Stim needs 9 stim values, do you want hybridStimColours=False?"
+    hasTransition = hasTransitionShift(stim, hz)
     
     nSamples = int(round(xLim[1] + 0.5)) # Limit will be #samples - 0.5
     asImg = np.zeros((20, nSamples))
-    # First stage: background = red, four stim of black
-    asImg[:, :stim[4, 0]] = onV
-    for i in range(4):
-        asImg[:, stim[i,0]:stim[i,1] + widen] = offV
-    # Middle: transition shift:
-    for sample in range(stim[4,0], stim[4,1] + widen):
-        factor = (sample - stim[4,0]) / (stim[4,1] - stim[4,0])
-        asImg[:, sample] = factor * offV + (1 - factor) * onV
-    # Last stage: background = black, four stim of red
-    asImg[:, stim[4, 1]:] = offV
-    for i in range(5,9):
-        asImg[:, stim[i,0]:stim[i,1] + widen] = onV
+    
+    if hasTransition:
+        # First stage: background = red, four stim of black
+        asImg[:, :stim[4, 0]] = onV
+        for i in range(4):
+            asImg[:, stim[i,0]:stim[i,1] + widen] = offV
+        # Middle: transition shift:
+        for sample in range(stim[4,0], stim[4,1] + widen):
+            factor = (sample - stim[4,0]) / (stim[4,1] - stim[4,0])
+            asImg[:, sample] = factor * offV + (1 - factor) * onV
+        # Last stage: background = black, four stim of red
+        asImg[:, stim[4, 1]:] = offV
+        for i in range(5,9):
+            asImg[:, stim[i,0]:stim[i,1] + widen] = onV
+    else:
+        # All off stim:
+        asImg[:, :] = onV
+        for i in range(stim.shape[0]):
+            asImg[:, stim[i,0]:stim[i,1] + widen] = offV
     asImg[-1, :] = borderV
     return asImg
     
-def _plotStimOnto(ax, stim, xLim, hybridStimColours=False, isDataPlot=False):
+def _plotStimOnto(ax, stim, hz, xLim, hybridStimColours=False, isDataPlot=False):
     if hybridStimColours:
-        stimAsImg = _stimToHybridColoursImg(stim, xLim)
+        stimAsImg = _stimToHybridColoursImg(stim, hz, xLim)
         ax.imshow(stimAsImg, cmap='hot', interpolation=None, aspect='auto', origin='lower', vmax=1)
     else:
         alpha = 0.2 if isDataPlot else 1.0
@@ -124,9 +138,9 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None, overlayStim=Fa
             aStim.set_xlabel("Time and Stimuli")
 
             fig.subplots_adjust(hspace=0.0)
-            _plotStimOnto(aStim, stim, xLim=aData.get_xlim(), hybridStimColours=hybridStimColours, isDataPlot=False)
+            _plotStimOnto(aStim, stim, hz, xLim=aData.get_xlim(), hybridStimColours=hybridStimColours, isDataPlot=False)
             if overlayStim:
-                _plotStimOnto(aData, stim, xLim=aData.get_xlim(), hybridStimColours=False, isDataPlot=True)
+                _plotStimOnto(aData, stim, hz, xLim=aData.get_xlim(), hybridStimColours=False, isDataPlot=True)
         else:
             aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
             aData.set_xlabel("Time")
@@ -169,9 +183,9 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
             aStim.set_xticks(stim[:, 0])
 
             fig.subplots_adjust(hspace=0.0)
-            _plotStimOnto(aStim, stim, xLim=aData.get_xlim(), hybridStimColours=hybridStimColours)
+            _plotStimOnto(aStim, stim, hz, xLim=aData.get_xlim(), hybridStimColours=hybridStimColours)
             if overlayStim:
-                _plotStimOnto(aData, stim, xLim=aData.get_xlim(), hybridStimColours=False, isDataPlot=True)
+                _plotStimOnto(aData, stim, hz, xLim=aData.get_xlim(), hybridStimColours=False, isDataPlot=True)
         else:
             aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
         #Disabled so we have a hacky way to see y scale
