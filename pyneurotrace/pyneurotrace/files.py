@@ -127,7 +127,7 @@ def loadKymograph(path, pxlPerNode=11):
     for i in range(0, data.shape[1], pxlPerNode):
         result[data[0, i]] = data[1:, i:(i+pxlPerNode)]
     return result
-    
+
 """
 Loads as many of the above as possible for a single step of an experiment.
 
@@ -170,6 +170,13 @@ def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, volumeXYZSo
     if kymoPath is not None:
         kymoData = loadKymograph(kymoPath, pxlPerNode=11)
     
+    # Tag whether this has a stim transition shift in the middle:
+    hasTransition = False
+    if stim.shape[0] == 9:
+        middleStimSamples = stim[4][1] - stim[4][0]
+        middleStimMs = middleStimSamples / hz * 1000.0
+        hasTransition = middleStimMs > 1000
+    
     return {
         'nodeIDs': nodeIDs,
         'xyz': xyz,
@@ -182,6 +189,7 @@ def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, volumeXYZSo
         'tree': tree,
         'branches': np.array(branchIDs),
         'planar': isPlanar,
+        'hasTransition': hasTransition,
         'kymoData': kymoData
     }
 
