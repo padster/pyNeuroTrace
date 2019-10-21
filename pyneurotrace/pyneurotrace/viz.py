@@ -51,14 +51,13 @@ def _plotBranchesOnto(ax, branches, yLim):
     branchRGB = np.expand_dims(branchRGB, axis=1)
     ax.imshow(branchRGB, interpolation='nearest', aspect='auto', origin='lower')
 
-# TODO: Project-specific, should be pulled out to caller
 def hasTransitionShift(stim, hz):
     middleStimSamples = stim[4][1] - stim[4][0]
     middleStimMs = middleStimSamples / hz * 1000.0
     return middleStimMs > 1000
 
 def _stimToHybridColoursImg(stim, hz, xLim, offV=0.0, onV=0.3, borderV=1.0, widen=1):
-    assert stim.shape[0] == 9, "Hybrid Stim needs 9 stim values, do you want hybridStimColours=False?"
+    assert stim.shape[0] == 9, "Hybrid Stim needs 9 stim values, do you need hybridStimColours=False?"
     hasTransition = hasTransitionShift(stim, hz)
     
     nSamples = int(round(xLim[1] + 0.5)) # Limit will be #samples - 0.5
@@ -211,46 +210,66 @@ def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None,
     with plt.style.context(('seaborn-dark-palette')):   
         fig, aBranchesOff, aBranchesOn, aDataOff, aDataOn = None, None, None, None, None
         
+        drawOn = (stimOnIdx is not None)
+        nRows = 2 if drawOn else 1
+        
         if branches is None:
-            fig, (aDataOff, aDataOn) = plt.subplots(2, 1)
-            
+            if drawOn:
+                fig, (aDataOff, aDataOn) = plt.subplots(2, 1)
+            else:
+                fig, aDataOff = plt.subplots(1, 1)
         else:
-            fig, ((aBranchesOff, aDataOff), (aBranchesOn, aDataOn)) = \
-                plt.subplots(2, 2, gridspec_kw = {'width_ratios':[1, 20]})
+            if drawOn:
+                fig, ((aBranchesOff, aDataOff), (aBranchesOn, aDataOn)) = \
+                    plt.subplots(2, 2, gridspec_kw = {'width_ratios':[1, 20]})
+            else:
+                fig, (aBranchesOff, aDataOff) = \
+                    plt.subplots(1, 2, gridspec_kw = {'width_ratios':[1, 20]})
 
+        fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD, hspace=0.2)
         if title is not None:
             fig.suptitle(title)
 
         offAverage = epochAverage(data, hz, stimOffIdx, 0, secAfter)
-        onAverage  = epochAverage(data, hz,  stimOnIdx, 0, secAfter)
-        maxOn, maxOff = np.max(onAverage), np.max(offAverage)
+        maxOff = np.max(offAverage)
+        vmax = maxOff
+        if drawOn:
+            onAverage  = epochAverage(data, hz,  stimOnIdx, 0, secAfter)
+            maxOn = np.max(onAverage)
+            vmax = max(vmax, maxOff)
+
         if 'vmax' not in kwargs:
-            kwargs['vmax'] = max(maxOn, maxOff)
+            kwargs['vmax'] = vmax
         if 'vmin' not in kwargs:
             kwargs['vmin'] = 0
+            
         aDataOff.set_title("Av. OFF stim response (%.2fs, max = %.2f/%.2f)" % (secAfter, maxOff, kwargs['vmax']))
-        aDataOn.set_title("Av. ON stim response (%.2fs, max = %.2f/%.2f)" % (secAfter, maxOn, kwargs['vmax']))
-        fig.subplots_adjust(left=PAD, right=(1 - PAD), top=(1 - PAD), bottom=PAD, hspace=0.2)
-
         _plotIntensityOnto(aDataOff, offAverage.clip(min=0), **kwargs)
-        _plotIntensityOnto(aDataOn, onAverage.clip(min=0), **kwargs)
+        if drawOn:
+            aDataOn.set_title("Av. ON stim response (%.2fs, max = %.2f/%.2f)" % (secAfter, maxOn, kwargs['vmax']))
+            _plotIntensityOnto(aDataOn, onAverage.clip(min=0), **kwargs)
+            
         if aBranchesOff is not None:
             aDataOff.get_yaxis().set_visible(False)
-            aDataOn.get_yaxis().set_visible(False)
             aBranchesOff.get_xaxis().set_visible(False)
-            aBranchesOn.get_xaxis().set_visible(False)
             aBranchesOff.set_ylabel("Node ID and Branch")
-            aBranchesOn.set_ylabel("Node ID and Branch")
+            if drawOn:
+                aDataOn.get_yaxis().set_visible(False)
+                aBranchesOn.get_xaxis().set_visible(False)
+                aBranchesOn.set_ylabel("Node ID and Branch")
 
             fig.subplots_adjust(wspace=0.0)
             _plotBranchesOnto(aBranchesOff, branches, yLim=aDataOff.get_ylim())
-            _plotBranchesOnto(aBranchesOn, branches, yLim=aDataOn.get_ylim())
+            if drawOn:
+                _plotBranchesOnto(aBranchesOn, branches, yLim=aDataOn.get_ylim())
         else:
             aDataOff.set_ylabel("Node ID")
-            aDataOn.set_ylabel("Node ID")
+            if drawOn:
+                aDataOn.set_ylabel("Node ID")
 
         aDataOff.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
-        aDataOn.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
+        if drawOn:
+            aDataOn.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
 
         if savePath is not None:
             fig.savefig(savePath)
