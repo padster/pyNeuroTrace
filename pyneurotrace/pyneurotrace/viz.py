@@ -1,16 +1,19 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import FuncFormatter
+
 from tqdm import tqdm, tqdm_notebook
 
+import matplotlib as mpl
+import matplotlib.animation as animation
 import matplotlib.patches as patches
+import matplotlib.pyplot as plt
+
+from matplotlib.ticker import FuncFormatter
 from matplotlib import collections as mc
 from matplotlib.animation import FuncAnimation
-import matplotlib.animation as animation
+from matplotlib_scalebar.scalebar import ScaleBar
 
 from .analysis import epochAverage, fitDoubleExp
 
-import matplotlib as mpl
 
 PAD = 0.08
 
@@ -340,7 +343,12 @@ def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace
             fig.savefig(savePath)
     return ax
 
-def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs=None, colors=None, title=None, flipY=False, scale=10000, savePath=None, lineAlpha=0.8, flatten='Z'):
+def plotPlanarStructure(
+    tree, rootID, nodeXYZ, 
+    branchIDs=None, colors=None, title=None, 
+    flipY=False, scale=1, savePath=None, 
+    lineAlpha=0.8, flatten='Z', pixelMeters=None):
+    
     # Default to flatten Z
     idxA, idxB = 0, 1 # X, Y
     scaleA, scaleB = scale, scale * (-1 if flipY else 1)
@@ -397,6 +405,9 @@ def plotPlanarStructure(tree, rootID, nodeXYZ, branchIDs=None, colors=None, titl
         lines = _genLines(tree, rootID, scale=scale, flipY=flipY, flatten=flatten)
         lineCollection = mc.LineCollection(lines, colors=[(1,1,1,lineAlpha)], linewidths=1)
         ax.add_collection(lineCollection)
+        
+        if pixelMeters is not None:
+            ax.add_artist(ScaleBar(pixelMeters, 'm', 'si-length', color='w', box_color='k'))
 
         if savePath is not None:
             fig.savefig(savePath)
