@@ -23,7 +23,14 @@ def _plotIntensityOnto(ax, data, **kwargs):
     if len(data.shape) != 2:
         print ("Intensity plot must be 2D, nodes x samples")
         return
-    ax.imshow(data, cmap='hot', interpolation='nearest', aspect='auto', origin='lower', **kwargs)
+        
+    colorBarShrink = kwargs.pop('colorBarShrink', 0.0)
+    im = ax.imshow(
+        data, cmap='hot', interpolation='nearest', aspect='auto', origin='lower', **kwargs)
+    if colorBarShrink > 0:
+        cbar = ax.figure.colorbar(im, ax=ax, shrink=colorBarShrink)
+        cbar.ax.set_xlabel(kwargs.pop('colorBarTitle', 'DF/F0'))
+        cbar.ax.xaxis.set_label_position('top') 
 
 def _plotLineOnto(ax, data, labels, colors, split):
     ax.patch.set_facecolor('black')
@@ -84,40 +91,53 @@ def _stimToHybridColoursImg(stim, hz, xLim, offV=0.0, onV=0.3, borderV=1.0, wide
     asImg[-1, :] = borderV
     return asImg
     
-def _plotStimOnto(ax, stim, hz, xLim, hybridStimColours=False, isDataPlot=False):
+def _plotStimOnto(ax, stim, hz, xLim, hybridStimColours=False, isDataPlot=False, **kwargs):
+    mappable = None
     if hybridStimColours:
         stimAsImg = _stimToHybridColoursImg(stim, hz, xLim)
-        ax.imshow(stimAsImg, cmap='hot', interpolation=None, aspect='auto', origin='lower', vmax=1)
+        mappable = ax.imshow(stimAsImg, cmap='hot', interpolation=None, aspect='auto', origin='lower', vmax=1)
     else:
         alpha = 0.2 if isDataPlot else 1.0
         ls = '--' if isDataPlot else '-'
         ax.set_xlim(xLim)
-        ax.patch.set_facecolor('black')
+        # Black background.
+        nSamples = int(round(xLim[1] + 0.5))
+        mappable = ax.imshow(np.zeros((20, nSamples)), cmap='hot', interpolation=None, aspect='auto', origin='lower', vmax=1)
         for stimEnd in stim[:, 1]:
             ax.axvline(x=stimEnd, color=(1.0, 0.0, 0.0, alpha), linestyle=ls)
         for stimStart in stim[:, 0]:
             ax.axvline(x=stimStart, color=(1.0, 1.0, 0.0, alpha), linestyle=ls)
+            
+    colorBarShrink = kwargs.pop('colorBarShrink', 0.0)
+    if colorBarShrink > 0 and not isDataPlot and mappable is not None:
+        cbar = ax.figure.colorbar(mappable, ax=ax, shrink=colorBarShrink)
 
-def plotIntensity(data, hz, branches=None, stim=None, title=None, overlayStim=False, savePath=None, hybridStimColours=False, **kwargs):
+def plotIntensity(data, hz, branches=None, stim=None, title=None, 
+    overlayStim=False, savePath=None, hybridStimColours=False, forceStimWidth=None, 
+    **kwargs):
     with plt.style.context(('seaborn-dark-palette')):
         fig, aBranches, aData, aStim, aBlank = None, None, None, None, None
         xAx, yAx = None, None
+        
+        wRatio = kwargs.pop('width_ratio', 20)
+        hRatio = kwargs.pop('height_ratio', 8)
         
         if branches is None and stim is None:
             fig, (aData) = plt.subplots(1, 1)
             xAx, yAx = aData, aData
         elif branches is not None and stim is None:
-            fig, (aBranches, aData) = plt.subplots(1, 2, gridspec_kw = {'width_ratios':[1, 20]})
+            fig, (aBranches, aData) = plt.subplots(1, 2, gridspec_kw = {'width_ratios':[1, wRatio]})
             xAx, yAx = aData, aBranches
         elif branches is None and stim is not None:
-            fig, (aData, aStim) = plt.subplots(2, 1, gridspec_kw = {'height_ratios':[8, 1]})
+            fig, (aData, aStim) = plt.subplots(2, 1, gridspec_kw = {'height_ratios':[hRatio, 1]})
             xAx, yAx = aStim, aData
         else:
-            fig, ((aBranches, aData), (aBlank, aStim)) = plt.subplots(2, 2, gridspec_kw = {'height_ratios':[8, 1], 'width_ratios':[1, 20]})
+            fig, ((aBranches, aData), (aBlank, aStim)) = plt.subplots(2, 2, gridspec_kw = {'height_ratios':[hRatio, 1], 'width_ratios':[1, wRatio]})
             xAx, yAx = aStim, aBranches
         fig.suptitle(title)
         fig.subplots_adjust(left=PAD/2, right=(1 - PAD/2), top=(1 - PAD), bottom=PAD)
 
+        kwargsCpy = kwargs.copy()
         _plotIntensityOnto(aData, data, **kwargs)
         if aBranches is not None:
             aData.get_yaxis().set_visible(False)
@@ -130,6 +150,14 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None, overlayStim=Fa
             aData.set_ylabel("Node ID")
 
         if aStim is not None:
+            if forceStimWidth is not None:
+                if hybridStimColours:
+                    oldTransitionEnd = stim[4, 1]
+                    stim[:, 1] = stim[:, 0] + forceStimWidth
+                    stim[4, 1] = oldTransitionEnd
+                else:
+                    stim[:, 1] = stim[:, 0] + forceStimWidth
+        
             aData.get_xaxis().set_visible(False)
             aStim.get_yaxis().set_visible(False)
             aStim.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
@@ -137,7 +165,7 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None, overlayStim=Fa
             aStim.set_xlabel("Time and Stimuli")
 
             fig.subplots_adjust(hspace=0.0)
-            _plotStimOnto(aStim, stim, hz, xLim=aData.get_xlim(), hybridStimColours=hybridStimColours, isDataPlot=False)
+            _plotStimOnto(aStim, stim, hz, xLim=aData.get_xlim(), hybridStimColours=hybridStimColours, isDataPlot=False, **kwargsCpy)
             if overlayStim:
                 _plotStimOnto(aData, stim, hz, xLim=aData.get_xlim(), hybridStimColours=False, isDataPlot=True)
         else:
