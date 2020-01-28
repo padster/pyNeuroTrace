@@ -35,16 +35,24 @@ def _plotIntensityOnto(ax, data, **kwargs):
         cbar.ax.set_xlabel(kwargs.pop('colorBarTitle', 'DF/F0'))
         cbar.ax.xaxis.set_label_position('top') 
 
-def _plotLineOnto(ax, data, labels, colors, split):
+def _plotLineOnto(ax, data, labels, colors, split, yPad=.05):
     ax.patch.set_facecolor('black')
+    
+    ymin, ymax = None, None
+    
     if isinstance(data, list):
         assert isinstance(labels, list) and isinstance(colors, list)
         assert len(data) == len(labels) and len(data) == len(colors)
         perLineOffset = np.max(data) - np.min(data) if split else 0.0
         for i, (d, l, c) in enumerate(zip(data, labels, colors)):
             ax.plot(d.T + i * perLineOffset, label=l, c=c, linewidth=1)
+            if ymin is None:
+                ymin, ymax = np.min(d.T + i * perLineOffset), np.max(d.T + i * perLineOffset)
+            else:
+                ymin, ymax = min(ymin, np.min(d.T + i * perLineOffset)), max(ymax, np.max(d.T + i * perLineOffset))
             nSamples = d.shape[0]
         ax.legend()
+        yZeros = [i * perLineOffset for i in range(len(data))]
     else:
         if colors is not None:
             ax.set_prop_cycle('color', colors)
@@ -53,8 +61,12 @@ def _plotLineOnto(ax, data, labels, colors, split):
         for i in range(data.shape[0]):
             dataCopy[i] += i * perLineOffset
         ax.plot(dataCopy.T)
+        ymin, ymax = np.min(dataCopy), np.max(dataCopy)
         nSamples = data.shape[1]
+        yZeros = [i * perLineOffset for i in range(data.shape[0])]
     ax.set_xlim((0, nSamples))
+    ax.set_ylim(ymin + yPad * (ymin - ymax), ymax + yPad * (ymax - ymin))
+    return np.array(yZeros if split else [0])
 
 def _plotBranchesOnto(ax, branches, yLim):
     branchRGB = LINE_COLORS[(np.array(branches)) % LINE_COLOR_COUNT]
@@ -184,8 +196,9 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None,
             
     return xAx, yAx
 
-def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, 
-        split=True, limitSec=None, overlayStim=True, savePath=None, hybridStimColours=True):
+def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, yTitle='DF/F0',
+        split=True, limitSec=None, overlayStim=True, savePath=None, hybridStimColours=True, 
+        yTickScale=1, yTickPct=True, yPad=.05):
     with plt.style.context(('seaborn-dark-palette')):        
         fig, aData, aStim = None, None, None
         xAx, yAx = None, None
@@ -204,7 +217,7 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
         if colors is None and branches is not None:
             colors = [(0.8,0.8,0.8) if b == -1 else LINE_COLORS[b % LINE_COLOR_COUNT] for b in branches]
 
-        _plotLineOnto(aData, data, labels, colors, split)
+        yZeros = _plotLineOnto(aData, data, labels, colors, split, yPad=yPad)
 
         if aStim is not None:
             aData.get_xaxis().set_visible(False)
@@ -218,9 +231,6 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
                 _plotStimOnto(aData, stim, hz, xLim=aData.get_xlim(), hybridStimColours=False, isDataPlot=True)
         else:
             aData.get_xaxis().set_major_formatter(FuncFormatter(lambda x, pos: "%.2fs" % (x / hz)))
-        #Disabled so we have a hacky way to see y scale
-        #if split:
-        #    aData.get_yaxis().set_visible(False)
 
         # Cull the start/end times:
         if limitSec is not None:
@@ -231,6 +241,20 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
             if aStim is not None:
                 aStim.set_xlim(startSample, endSample)
 
+        # Show Y Axis title as well as major ticks for zeros, minor for DF/F0=x
+        if yTitle is not None:
+            yAx.set_title(yTitle)
+        
+        if yTickScale is not None:
+            tickFmt = "%d%%" if yTickPct else "%.2f"            
+            zeroText, deltaText = tickFmt % (0), tickFmt % (yTickScale * (100 if yTickPct else 1))
+            yAx.set_yticks(yZeros, minor=False)
+            yAx.set_yticks(yZeros + yTickScale, minor=True)
+            yAx.get_yaxis().set_major_formatter(FuncFormatter(lambda x, pos: zeroText))
+            yAx.get_yaxis().set_minor_formatter(FuncFormatter(lambda x, pos: deltaText))
+            
+        xAx.set_xlabel("Time (sec)")
+    
         if savePath is not None:
             fig.savefig(savePath)
             
