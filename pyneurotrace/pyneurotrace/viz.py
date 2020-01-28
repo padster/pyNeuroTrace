@@ -14,7 +14,6 @@ from matplotlib_scalebar.scalebar import ScaleBar
 
 from .analysis import epochAverage, fitDoubleExp
 
-
 PAD = 0.08
 
 # TODO: Move into a reusable place:
@@ -243,7 +242,7 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
 
         # Show Y Axis title as well as major ticks for zeros, minor for DF/F0=x
         if yTitle is not None:
-            yAx.set_title(yTitle)
+            yAx.set_ylabel(yTitle)
         
         if yTickScale is not None:
             tickFmt = "%d%%" if yTickPct else "%.2f"            
