@@ -107,7 +107,7 @@ def _stimToHybridColoursImg(stim, hz, xLim, offV=0.0, onV=0.3, borderV=1.0, wide
     
 def _plotStimOnto(ax, stim, hz, xLim, hybridStimColours=False, isDataPlot=False, **kwargs):
     mappable = None
-    if hybridStimColours:
+    if hybridStimColours and not isDataPlot:
         stimAsImg = _stimToHybridColoursImg(stim, hz, xLim)
         mappable = ax.imshow(stimAsImg, cmap='hot', interpolation=None, aspect='auto', origin='lower', vmax=1)
     else:
@@ -116,7 +116,9 @@ def _plotStimOnto(ax, stim, hz, xLim, hybridStimColours=False, isDataPlot=False,
         ax.set_xlim(xLim)
         # Black background.
         nSamples = int(round(xLim[1] + 0.5))
-        mappable = ax.imshow(np.zeros((20, nSamples)), cmap='hot', interpolation=None, aspect='auto', origin='lower', vmax=1)
+        mappable = None
+        if not isDataPlot:
+            mappable = ax.imshow(np.zeros((20, nSamples)), cmap='hot', interpolation=None, aspect='auto', origin='lower', vmax=1)
         for stimEnd in stim[:, 1]:
             ax.axvline(x=stimEnd, color=(1.0, 0.0, 0.0, alpha), linestyle=ls)
         for stimStart in stim[:, 0]:
