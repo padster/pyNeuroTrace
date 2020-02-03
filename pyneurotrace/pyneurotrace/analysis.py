@@ -3,10 +3,10 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 def epochs(traces, hz, startSamples, secBefore, secAfter):
-    samplesBefore, samplesAfter = int(math.ceil(hz * secBefore)), int(math.floor(hz * secAfter))
+    samplesBefore, samplesAfter = int(math.ceil(hz * secBefore)), int(math.ceil(hz * secAfter))
     epochs = []
     for sample in startSamples:
-        epochs.append(traces[:, sample - samplesBefore : sample + samplesAfter+1])
+        epochs.append(traces[:, sample - samplesBefore : sample + samplesAfter])
     return np.array(epochs)
 
 def epochAverage(traces, hz, startSamples, secBefore, secAfter):
