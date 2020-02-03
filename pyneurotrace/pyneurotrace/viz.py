@@ -260,7 +260,7 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
     return xAx, yAx
 
 
-def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None, title=None, secAfter=3, savePath=None, **kwargs):
+def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None, title=None, secBefore=0, secAfter=3, savePath=None, **kwargs):
     with plt.style.context(('seaborn-dark-palette')):   
         fig, aBranchesOff, aBranchesOn, aDataOff, aDataOn = None, None, None, None, None
         
@@ -284,11 +284,11 @@ def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None,
         if title is not None:
             fig.suptitle(title)
 
-        offAverage = epochAverage(data, hz, stimOffIdx, 0, secAfter)
+        offAverage = epochAverage(data, hz, stimOffIdx, secBefore, secAfter)
         maxOff = np.max(offAverage)
         vmax = maxOff
         if drawOn:
-            onAverage  = epochAverage(data, hz,  stimOnIdx, 0, secAfter)
+            onAverage  = epochAverage(data, hz,  stimOnIdx, secBefore, secAfter)
             maxOn = np.max(onAverage)
             vmax = max(vmax, maxOff)
 
