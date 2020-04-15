@@ -67,8 +67,11 @@ def _plotLineOnto(ax, data, labels, colors, split, yPad=.05):
     ax.set_ylim(ymin + yPad * (ymin - ymax), ymax + yPad * (ymax - ymin))
     return np.array(yZeros if split else [0])
 
-def _plotBranchesOnto(ax, branches, yLim):
-    branchRGB = LINE_COLORS[(np.array(branches)) % LINE_COLOR_COUNT]
+def _plotBranchesOnto(ax, branches, yLim, colors=None):
+    # TODO: Remove branches, only accept colors.
+    branchRGB = colors
+    if branchRGB is None:
+        branchRGB = LINE_COLORS[(np.array(branches)) % LINE_COLOR_COUNT]
     branchRGB = np.expand_dims(branchRGB, axis=1)
     ax.imshow(branchRGB, interpolation='nearest', aspect='auto', origin='lower')
 
@@ -128,7 +131,7 @@ def _plotStimOnto(ax, stim, hz, xLim, hybridStimColours=False, isDataPlot=False,
     if colorBarShrink > 0 and not isDataPlot and mappable is not None:
         cbar = ax.figure.colorbar(mappable, ax=ax, shrink=colorBarShrink)
 
-def plotIntensity(data, hz, branches=None, stim=None, title=None, 
+def plotIntensity(data, hz, branches=None, colors=None, stim=None, title=None, 
     overlayStim=False, savePath=None, hybridStimColours=False, forceStimWidth=None, 
     **kwargs):
     with plt.style.context(('seaborn-dark-palette')):
@@ -137,14 +140,19 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None,
         
         wRatio = kwargs.pop('width_ratio', 20)
         hRatio = kwargs.pop('height_ratio', 8)
+
+        if branches is not None:
+            assert colors is None, "Cannot provide both colors and branches to plotIntensity"
+            colors = LINE_COLORS[(np.array(branches)) % LINE_COLOR_COUNT]
+
         
-        if branches is None and stim is None:
+        if colors is None and stim is None:
             fig, (aData) = plt.subplots(1, 1)
             xAx, yAx = aData, aData
-        elif branches is not None and stim is None:
+        elif colors is not None and stim is None:
             fig, (aBranches, aData) = plt.subplots(1, 2, gridspec_kw = {'width_ratios':[1, wRatio]})
             xAx, yAx = aData, aBranches
-        elif branches is None and stim is not None:
+        elif colors is None and stim is not None:
             fig, (aData, aStim) = plt.subplots(2, 1, gridspec_kw = {'height_ratios':[hRatio, 1]})
             xAx, yAx = aStim, aData
         else:
@@ -161,7 +169,7 @@ def plotIntensity(data, hz, branches=None, stim=None, title=None,
             aBranches.set_ylabel("Node ID and Branch")
 
             fig.subplots_adjust(wspace=0.0)
-            _plotBranchesOnto(aBranches, branches, yLim=aData.get_ylim())
+            _plotBranchesOnto(aBranches, None, yLim=aData.get_ylim(), colors=colors)
         else:
             aData.set_ylabel("Node ID")
 
