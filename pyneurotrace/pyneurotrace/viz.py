@@ -380,7 +380,8 @@ def plotPlanarStructure(
     tree, rootID, nodeXYZ, 
     branchIDs=None, colors=None, title=None, 
     flipY=False, scale=1, savePath=None, 
-    lineAlpha=0.8, flatten='Z', pixelMeters=None, palette='seaborn-dark-palette'):
+    lineAlpha=0.8, flatten='Z', pixelMeters=None, 
+    palette='seaborn-dark-palette', bgColor='black'):
     
     # Default to flatten Z
     idxA, idxB = 0, 1 # X, Y
@@ -394,7 +395,7 @@ def plotPlanarStructure(
    
     with plt.style.context((palette)):   
         fig, ax = plt.subplots(1, 1)
-        ax.patch.set_facecolor('black')
+        ax.patch.set_facecolor(bgColor)
         ax.set_aspect('equal')
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
