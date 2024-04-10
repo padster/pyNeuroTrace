@@ -56,19 +56,7 @@ def nndSmooth(data, hz, tau, iterFunc=None):
 
 
 
-Okada, M., Ishikawa, T., & Ikegaya, Y. (2016).
-A computationally efficient filter for reducing shot noise in low S/N data.
-PloS one, 11(6), e0157595.
 
-def okada(data, iterFunc=None):
-    data = cu.array(data)
-    def _singleRowOkada(samples):
-        x = cu.copy(samples)
-        for i in range(1, len(x) - 1):
-            if (x[i] - x[i - 1]) * (x[i] - x[i + 1]) > 0:
-                x[i] = (x[i - 1] + x[i + 1]) / 2.0
-        return x
-    return _forEachTimeseries(data, _singleRowOkada, iterFunc)
 """
 
 
@@ -77,6 +65,30 @@ Jia, H., Rochefort, N. L., Chen, X., & Konnerth, A. (2011).
 In vivo two-photon imaging of sensory-evoked dendritic calcium signals in cortical neurons.
 Nature protocols, 6(1), 28.
 """
+
+"""
+Okada, M., Ishikawa, T., & Ikegaya, Y. (2016).
+A computationally efficient filter for reducing shot noise in low S/N data.
+PloS one, 11(6), e0157595.
+"""
+def okada(data, iterFunc=None):
+    data = cu.array(data)
+    def _singleRowOkada(samples):
+        x = cu.copy(samples)
+
+        shiftLeft = cu.roll(x[1:], -1)
+        shiftRight = cu.roll(x[1:], 1)
+               
+        # Find where filter should be applied
+        filterCondition = (x[1:] - shiftLeft) * (x[1:] - shiftRight) > 0
+
+        # Replace values with average
+        x[1:] = cu.where(filterCondition, (shiftLeft + shiftRight)/2, x[1:])
+        
+        return x
+    return _forEachTimeseries(data, _singleRowOkada, iterFunc)
+
+
 def deltaFOverF0(data, hz, t0=0.2, t1=0.75, t2=3.0, iterFunc=None):
     data = cu.array(data)
 

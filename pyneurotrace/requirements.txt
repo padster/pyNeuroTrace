@@ -6,3 +6,4 @@ numpy
 PyQt5
 scipy
 tqdm
+cupy
