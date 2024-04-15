@@ -99,9 +99,9 @@ def deltaFOverF0(data, hz, t0=0.2, t1=0.75, t2=3.0, iterFunc=None):
     t1samples, t2samples = round(t1 * hz), round(t2*hz)
 
     def _singeRowDeltaFOverF(samples):
-   
         fBar = uniform_filter1d(samples, t1samples, mode='nearest')
-        f0   = minimum_filter1d(fBar, t2samples, mode='nearest')
+        startOffset = t2samples//2-1
+        f0   = minimum_filter1d(fBar, t2samples, mode='nearest', origin=startOffset)
 
         result = (samples - f0) / f0
         if tau is not None:
