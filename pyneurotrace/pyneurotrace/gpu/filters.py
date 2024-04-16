@@ -91,12 +91,9 @@ def okada(data, iterFunc=None):
 
 def deltaFOverF0(data, hz, t0=0.2, t1=0.75, t2=3.0, iterFunc=None):
     data = cu.array(data)
-
-    tau = None if t0 is None else t0
-    time = cu.arange(0, tau, 1/hz)
-
-
+    
     t1samples, t2samples = round(t1 * hz), round(t2*hz)
+    alpha = None if t0 is None else 1 - cu.exp(-1 / (t0 * hz))
 
     def _singeRowDeltaFOverF(samples):
         fBar = uniform_filter1d(samples, t1samples, mode='nearest')
@@ -104,19 +101,32 @@ def deltaFOverF0(data, hz, t0=0.2, t1=0.75, t2=3.0, iterFunc=None):
         f0   = minimum_filter1d(fBar, t2samples, mode='nearest', origin=startOffset)
 
         result = (samples - f0) / f0
-        if tau is not None:
-            result = _ewma(result, tau, time)
+        if alpha is not None:
+            result = _ewma(result, alpha)
         return result
     return _forEachTimeseries(data, _singeRowDeltaFOverF, iterFunc)
 
-def _ewma(x, tau, time):
-    W = cu.exp(-cu.abs(time)/tau)
 
-    convol = cu.convolve(x, W, mode='full')[:len(x)]
-    norm = cu.convolve(cu.ones_like(x), W, mode='full')[:len(x)]
+def _ewma(data, alpha):
+    # Vectorized approximation of EWMA function
+    # Generate weights    
+    window_size = int(-cu.log(1e-10) / alpha)
+    kernel = alpha * (1 - alpha) ** cu.arange(window_size)
+    kernel /= cu.sum(kernel)
     
-    return convol/norm
+    #Peform convolution
+    convoluted = cu.convolve(data, kernel, mode='full')
+    cumulative_kernel_sum = cu.cumsum(kernel)
+    normalizer = cu.zeros_like(convoluted)
+    end_idx = len(cumulative_kernel_sum)
 
+    # Place the cumulative sum correctly in the normalizer
+    normalizer[:end_idx] = cumulative_kernel_sum
+    normalizer[end_idx:] = cumulative_kernel_sum[-1]
+
+    normalized_result = convoluted[:len(data)] / normalizer[:len(data)]
+    
+    return normalized_result
 
 # Input is either 1d (timeseries), 2d (each row is a timeseries) or 3d (x, y, timeseries)
 def _forEachTimeseries(data, func, iterFunc=None):
