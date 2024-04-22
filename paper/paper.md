@@ -11,10 +11,12 @@ authors:
     orcid: 0000-0000-0000-0000
     equal-contrib: true
     affiliation: 1
+
   - name: Peter Hogg
     orid: 0000-0003-2176-4977
     equal-contrib: true 
     affiliation: 1
+
  - name: Kurt Haas
     orid: 0000-0003-4754-1560
     equal-contrib: false
@@ -45,12 +47,14 @@ There are several methods for calculating the DeltaF/F of a fluorscent trace. We
 We implement the Okada Filter in Python[@Okada2016]. This filter is designed to filter shot-noise from traces in low-signal to noise paradigms, which is common for calcium imaging with two-photon imaging where the collected photon count is low and noise from PMT can be nontrivial. 
 
 ## Nonnegative Deconvolution
-
+`pyNeuroTrace` also has an implementation of nonnegative deconvolution (NND) to be applied to photocurrents to reduce noise in raw time series recordings [@Podgorksi2012]. These alogrithm can also be used to aid in the detection of events associated with neuronal activity which follow similiar decays as photocurrents from detects, as small events in fluorscent imaging are often obfuscated by noise in the signal[@Podgorksi2012].
 
 # Event Detection
+TODO -> write about this. Add GPU speed up to code
 
 # Visualization
-Figures can be included like this:
+`pyNeuroTrace` has several in built visualization tools. 2D arrays of neuronal timeseries can be displayed as heat maps \autoref{fig:heatmap} or as individual traces \autoref{fig:traces}. 
+
 ![Caption for example figure.\label{fig:heatmap}](docs/img/pyntIntensity.png)
 
 and referenced from text using \autoref{fig:heatmap}
@@ -59,32 +63,40 @@ Figures can be included like this:
 and referenced from text using \autoref{fig:example}.
 
 Figures can be included like this:
-![Caption for example figure.\label{fig:aodTree}](docs/img/pyntPlanar.png)
+![Example of lab specific visualation of  \label{fig:AODtree}](docs/img/pyntPlanar.png)
 
 # GPU Acceleration
-Several of the filters in `pyNeuroTrace` have been rewritten to be almost entirerly vectorized in their calculations. The benefit being a noticable difference in the performance for larger time series. These vectorized versions gain further speed by being excuted on a GPU using the Cupy python library [@cupy_learningsys2017]. To excuted these version the filters can be imported from the module, `pyneruopyneurotrace.gpu.filters`, and a CUDA compatiable graphics card is needed. This functionality is becoming increasingly important as aquistion rates increase for kilohertz imaging of activity can generate arrays hundreds of thousands datapoints in length in just a few minutes. \autoref{fig:CPUvsGPU} shows the difference in calculating arrays of various sizes using either the CPU or vectorized GPU based approach of the dF/F function. The CPU used in these calcultions was a Intel i5-9600K with six 4.600GHz cores, the GPU was a NVIDIA GeForce RTX 4070 with CUDA Version 12.3. 
+Several of the filters in `pyNeuroTrace` have been rewritten to be almost entirerly vectorized in their calculations. The benefit being a noticable difference in the performance for larger time series. These vectorized versions gain further speed by being excuted on a GPU using the Cupy Python library [@cupy_learningsys2017]. To excuted these versions the filters can be imported from the module, `pyneruopyneurotrace.gpu.filters`, and a CUDA compatiable graphics card is needed. This functionality is becoming increasingly important as acquisition rates increase for kilohertz imaging of activity can generate arrays hundreds of thousands of datapoints in length in just a few minutes. \autoref{fig:CPUvsGPU} shows the difference in calculating arrays of various sizes using either the CPU or vectorized GPU based approach of the dF/F function. The CPU used in these calcultions was a Intel i5-9600K with six 4.600GHz cores, the GPU was a NVIDIA GeForce RTX 4070 with CUDA Version 12.3. 
 
 ![Comparison between dF/F with EWMA calculations for different array sizes. \label{fig:CPUvsGPU}](docs/img/pyntdffCalculationCPUvsGPU.png)
 
 To vectorize the functions several where modified. For example the EMWA used to smooth the dF/F signal as described by Jia *et al* was changed to an approximation using convolution with an exponetional function. The kernel used to perform is defined as:
+
 $$w[i] = \begin{cases} 
 \alpha \cdot (1 - \alpha)^i & \text{for } i = 0, 1, 2, \dots, N-1 \\
 0 & \text{otherwise}
 \end{cases}$$
+
 Where $\alpha$ is defined as:
+
 $$ \alpha = 1 - e^-\frac{1}{\tau}$$
  $\tau$ where is a user selected time constant which is translated into number of samples. $N$ is a window parameter for the kernal calcuated using $\alpha$:
  $$N = \left\lfloor -\frac{\log(10^{-10})}{\alpha} \right\rfloor$$
  
- This allows a filter for smaller values that have a minisclue influence on the weighted average. The kernel needs to be normalized to produce smoothing with the same value of non-vectorized impementation:
+This allows a filter for smaller values that have a minisclue influence on the weighted average. The kernel needs to be normalized to produce smoothing with the same output value as the non-vectorized impementation:
+
 $$w[i] \leftarrow \frac{w[i]}{\sum_{j=0}^{N-1} w[j]}$$
 The normalized kernel is then convolved with the dF/F signal, d:
 $$c[k] = \sum_{i=0}^{N-1} w[i]\cdot d[k-i]$$
 
 This convolved signal, $c$ is then normalized to the cummulative sum of the exponetial kernel:
+
 $$n[j] = \sum_{i=0}^{j} w[i]$$
 
 $$emwa = c[i]/n[i]$$
+
+Differences between the CPU and GPU implenetations of the EWMA for an array of ranom values have been plotted \autoref{fig:ewmaCPUvsGPU}. These were generated from the same array using the respective decays for either implementation using the time constant of 50 miliseconds and a sampling rate of 2kHz. The difference between the two outputs typically range in magnitude from  1e-16 to 1e-12 depending on user parameters. These discrepancies can also be attributed to differences in floating point number accuracy between CPU and GPU calcultations.
+![Overlay of the EWMA calculations using the CPU implementation and GPU approximation. The difference in values from the output is alos plotted. \label{fig:ewmaCPUvsGPU}](docs/img/ewma_CPUvsGPU.png)
 
 # Acknowledgements
 
