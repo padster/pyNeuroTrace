@@ -72,7 +72,6 @@ A computationally efficient filter for reducing shot noise in low S/N data.
 PloS one, 11(6), e0157595.
 """
 def okada(data, iterFunc=None):
-    data = cu.array(data)
     def _singleRowOkada(samples):
         x = cu.copy(samples)
 
@@ -89,9 +88,7 @@ def okada(data, iterFunc=None):
     return _forEachTimeseries(data, _singleRowOkada, iterFunc)
 
 
-def deltaFOverF0(data, hz, t0=0.2, t1=0.75, t2=3.0, iterFunc=None):
-    data = cu.array(data)
-    
+def deltaFOverF0(data, hz, t0=0.2, t1=0.75, t2=3.0, iterFunc=None): 
     t1samples, t2samples = round(t1 * hz), round(t2*hz)
     alpha = None if t0 is None else 1 - cu.exp(-1 / (t0 * hz))
 
@@ -130,6 +127,8 @@ def _ewma(data, alpha):
 
 # Input is either 1d (timeseries), 2d (each row is a timeseries) or 3d (x, y, timeseries)
 def _forEachTimeseries(data, func, iterFunc=None):
+    data = cu.array(data)
+
     if iterFunc is None:
         iterFunc = lambda x: x
     dim = len(data.shape)

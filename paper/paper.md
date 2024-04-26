@@ -1,5 +1,5 @@
 ---
-title: 'PyNeuroTrace: Python code for Neural Timeseries'
+title: PyNeuroTrace - Python code for Neural Timeseries
 tags:
   - Python
   - neuroscience
@@ -22,8 +22,8 @@ authors:
     equal-contrib: false
     affiliation: 1
 affiliations:
- - name: Department of Cellular and Physiological Sciences, Centre for Brain Health, School of Biomedical Engineering, University of British Columbia, Vancouver, Canada
-   index: 1
+  - name: Department of Cellular and Physiological Sciences, Centre for Brain Health, School of Biomedical Engineering, University of British Columbia, Vancouver, Canada
+    index: 1
 date: 14 April 2024
 bibliography: paper.bib
 
@@ -59,10 +59,13 @@ TODO -> write about this. Add GPU speed up to code
 
 and referenced from text using \autoref{fig:heatmap}
 Figures can be included like this:
+
 ![Caption for example figure.\label{fig:traces}](docs/img/pyntLines.png)
+
 and referenced from text using \autoref{fig:example}.
 
 Figures can be included like this:
+
 ![Example of lab specific visualation of  \label{fig:AODtree}](docs/img/pyntPlanar.png)
 
 # GPU Acceleration
@@ -96,7 +99,8 @@ $$n[j] = \sum_{i=0}^{j} w[i]$$
 $$emwa = c[i]/n[i]$$
 
 Differences between the CPU and GPU implenetations of the EWMA for an array of ranom values have been plotted \autoref{fig:ewmaCPUvsGPU}. These were generated from the same array using the respective decays for either implementation using the time constant of 50 miliseconds and a sampling rate of 2kHz. The difference between the two outputs typically range in magnitude from  1e-16 to 1e-12 depending on user parameters. These discrepancies can also be attributed to differences in floating point number accuracy between CPU and GPU calcultations.
-![Overlay of the EWMA calculations using the CPU implementation and GPU approximation. The difference in values from the output is alos plotted. \label{fig:ewmaCPUvsGPU}](docs/img/ewma_CPUvsGPU.png)
+
+![Overlay of the EWMA calculations using the CPU implementation and GPU approximation in red and blue. The difference in values from the output is also plotted. \label{fig:ewmaCPUvsGPU}](docs/img/ewma_CPUvsGPU.png)
 
 # Acknowledgements
 
