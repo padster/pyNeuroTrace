@@ -3,7 +3,7 @@ import math
 import cupy as cu
 
 from cupyx.scipy.ndimage import minimum_filter1d, uniform_filter1d
-from .nndFilter import nonNegativeDeconvolution as NND
+#from .nndFilter import nonNegativeDeconvolution as NND
 
 """
 TODO Turn these into vectorized GPU versions 
