@@ -32,7 +32,7 @@ bibliography: paper.bib
 
 # Summary
 
-Modern techniques in optophysiology have allowed neuroscientists unprecedented access to neuronal activity *in vivo*. The time series datasets generated from these experiments are becoming increasing larger as new technologies allow for faster acquistion rates of raw data. These fluorscent recordings are being made with an ever expanding library of indicators for calcium, voltage, neurotransimitter and neuromodulator activity. These signals generated from these fluorscent bioindicators contain the information of the underlying neuronal activity but all have unique molecular kinetics and inherit signal-noise ratios which must be taken into account during singal processing. The development of pyNeuroTrace, an open-source Python library, was made to aid in the processing of these neurnal signals which must be filtered with these unique aspects in mind before analysis can be completed.
+Modern techniques in optophysiology have allowed neuroscientists unprecedented access to neuronal activity *in vivo*. The time series datasets generated from these experiments are becoming increasing larger as new technologies allow for faster acquistion rates of raw data. These fluorscent recordings are being made with an ever expanding library of indicators encoding calcium, voltage, neurotransimitter and neuromodulator activity. These signals generated from these fluorscent bioindicators contain the information of the underlying neuronal activity but all have unique molecular kinetics and inherit signal-noise ratios which must be taken into account during singal processing. The development of pyNeuroTrace, an open-source Python library, was made to aid in the processing of these neurnal signals which must be filtered with these unique aspects in mind before analysis can be completed.
 
 # Statement of need
 
@@ -41,7 +41,7 @@ Many neuroscience labs that use optophysiological methods, such as two-photon mi
 # Signal Processing
 
 ## DeltaF/F
-There are several methods for calculating the DeltaF/F of a fluorscent trace. We implemented the method described by Jia *et al* which includes several smoothing steps to help with shot noise[@Jia2010]. In short, F0 is calculated by finding a the minmum signal in a window of the rolling average of the raw signal. Then DeltaF is calculated by the difference in the raw signal and F0 divided by F0 (F-F0)/F0. This DeltaF/F signal is optionally smoothed using an exponetially wieghted moving average (ewma) to further remove shot noise. 
+There are several methods for calculating the DeltaF/F of a fluorscent trace. We implemented the method described by Jia *et al* which includes an oprtional smoothing step to help with shot noise[@Jia2010]. In short, F0 is calculated by finding a the minmum signal in a window of the rolling average of the raw signal. Then DeltaF is calculated by the difference in the raw signal and F0 divided by F0 (F-F0)/F0. This DeltaF/F signal is optionally smoothed using an exponetially wieghted moving average (ewma) to further remove shot noise. 
 
 ## Okada Filter
 We implement the Okada Filter in Python[@Okada2016]. This filter is designed to filter shot-noise from traces in low-signal to noise paradigms, which is common for calcium imaging with two-photon imaging where the collected photon count is low and noise from PMT can be nontrivial. 
