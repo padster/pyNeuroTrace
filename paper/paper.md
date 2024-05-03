@@ -13,26 +13,25 @@ authors:
     affiliation: 1
 
   - name: Peter Hogg
-    orid: 0000-0003-2176-4977
+    orcid: 0000-0003-2176-4977
     equal-contrib: true 
     affiliation: 1
 
- - name: Kurt Haas
-    orid: 0000-0003-4754-1560
+  - name: Kurt Haas
+    orcid: 0000-0003-4754-1560
     equal-contrib: false
     affiliation: 1
+
 affiliations:
-  - name: Department of Cellular and Physiological Sciences, Centre for Brain Health, School of Biomedical Engineering, University of British Columbia, Vancouver, Canada
+  - name: 'Department of Cellular and Physiological Sciences, Centre for Brain Health, School of Biomedical Engineering, University of British Columbia, Vancouver, Canada'
     index: 1
-date: 14 April 2024
-bibliography: paper.bib
-
-
+date: '14 April 2024'
+bibliography: 'paper.bib'
 --- 
 
 # Summary
 
-Modern techniques in optophysiology have allowed neuroscientists unprecedented access to neuronal activity *in vivo*. The time series datasets generated from these experiments are becoming increasing larger as new technologies allow for faster acquistion rates of raw data. These fluorscent recordings are being made with an ever expanding library of indicators for calcium, voltage, neurotransimitter and neuromodulator activity. These signals generated from these fluorscent bioindicators contain the information of the underlying neuronal activity but all have unique molecular kinetics and inherit signal-noise ratios which must be taken into account during singal processing. The development of pyNeuroTrace, an open-source Python library, was made to aid in the processing of these neurnal signals which must be filtered with these unique aspects in mind before analysis can be completed.
+Modern techniques in optophysiology have allowed neuroscientists unprecedented access to neuronal activity *in vivo*. The time series datasets generated from these experiments are becoming increasing larger as new technologies allow for faster acquistion rates of raw data. These fluorscent recordings are being made with an ever expanding library of indicators encoding calcium, voltage, neurotransimitter and neuromodulator activity. These signals generated from these fluorscent bioindicators contain the information of the underlying neuronal activity but all have unique molecular kinetics and inherit signal-noise ratios which must be taken into account during singal processing. The development of pyNeuroTrace, an open-source Python library, was made to aid in the processing of these neurnal signals which must be filtered with these unique aspects in mind before analysis can be completed.
 
 # Statement of need
 
@@ -41,30 +40,34 @@ Many neuroscience labs that use optophysiological methods, such as two-photon mi
 # Signal Processing
 
 ## DeltaF/F
-There are several methods for calculating the change of intensity of fluorscent trace [@Grienberger2022]. We implemented the method described by Jia *et al* for the calculation of DeltaF/F normalizes the signal to a baseline which helps with bleaching or other changes that occur over time which influence the detection or magnitude of events in the raw signal[@Jia2010]. This implementation includes several smoothing steps to help with shot noise[@Jia2010]. In short, F0 is calculated by finding a the minmum signal in a window of the rolling average of the raw signal. Then $\Delta F$ is calculated by the difference in the raw signal and $F_\theta$ this is then divided by $F_\theta$ to ge the trace for  $\Delta F/F_\theta$ . This $\Delta F/F_\theta$ signal is optionally smoothed using an exponetially wieghted moving average (ewma) to further remove shot noise. Jia *et al* defined rolling average with the following equation:
-$$\bar F =(1/\tau_{1} )  \int_{(x-\tau_{1}/2)}^{(x+\tau_{1}/2)} F(\tau)\ \tau \$$
+There are several methods for calculating the change of intensity of a fluorscent trace [@Grienberger2022]. We implemented the method described by Jia *et al* for the calculation of $\Delta F/F$ normalizes the signal to a baseline which helps with bleaching or other changes that occur over time which influence the detection or magnitude of events in the raw signal[@Jia2010]. This implementation includes several smoothing steps to help with shot noise[@Jia2010]. In short, $F_\theta$  is calculated by finding a the minmum signal in a window of the rolling average of the raw signal. Then $\Delta F$ is calculated by the difference in the raw signal and $F_\theta$, which is then divided by $F_\theta$ to get the trace for  $\Delta F/F_\theta$ . This $\Delta F/F_\theta$ signal is optionally smoothed using an exponetially wieghted moving average (ewma) to further remove shot noise. Jia *et al* defined their rolling average with the following equation:
 
-The $F_\theta$ is defined as uing a second time constant,, $\tau_2$, to define a window for the search for the minimum value to be used as a rollowing baseline: 
-$$ F_\theta(t) = min (\bar F(x) ) | t- \tau_2 < x < t $$
+$$\bar{F} = \left(\frac{1}{\tau_1}\right) \int_{x-\tau_1/2}^{x+\tau_1/2} F(\tau) \, d\tau$$
 
-Thus DeltaF/F is:
+
+The variable $F_ \theta$ is defined using a second time constant, $\tau_2$, that defines a rolling window to search for the minimum smoothed signal value to be used as a baseline: 
+$$ F_ \theta(t) = min (\bar F(x) ) | t- \tau_2 < x < t $$
+
+Thus $\Delta F/F$ is where $F$ is the orginal raw signal:
 $$
 \Delta F/F = \frac{ F(t)- F_ \theta }{ F_ \theta }
 $$
 
+The two time constants, $\tau_{1}$ and $\tau_{2}$, can be selected by users. Modifying the these parameters will have a dramatic influence on the output signal.
 
 ## Okada Filter
 We implement the Okada Filter in Python[@Okada2016]. This filter is designed to filter shot-noise from traces in low-signal to noise paradigms, which is common for calcium imaging with two-photon imaging where the collected photon count is low and noise from PMT can be nontrivial. 
 
 ## Nonnegative Deconvolution
-`pyNeuroTrace` also has an implementation of nonnegative deconvolution (NND) to be applied to photocurrents to reduce noise in raw time series recordings [@Podgorksi2012]. These alogrithm can also be used to aid in the detection of events associated with neuronal activity which follow similiar decays as photocurrents from detects, as small events in fluorscent imaging are often obfuscated by noise in the signal[@Podgorksi2012].
+`pyNeuroTrace` also has an implementation of nonnegative deconvolution (NND) to be applied to photocurrents to reduce noise in raw time series recordings [@Podgorski2012]. These alogrithm can also be used to aid in the detection of events associated with neuronal activity which follow similiar decays as photocurrents from detects, as small events in fluorscent imaging are often obfuscated by noise in the signal[@Podgorski2012].
 
 # Event Detection
-The event detection module uses several strategies to indentify neuronal activity in time series datasets. These methodologies have been previously discussed and compared by Sakaki *et al* [@Sakaki2018]. These include to generalizable methods and one that requires prior knowledge of recorded event shape. The generalizable methods include filtering the signal through an exponentially weighted moving average (ewma) or cumulative sum of movement above the mean (cusum). The final filter is a match filter
+The event detection module uses several strategies to indentify neuronal activity in time series datasets. These methodologies have been previously discussed and compared by Sakaki *et al* [@Sakaki2018]. These include to generalizable methods and one that requires prior knowledge of recorded event shape. The generalizable methods include filtering the signal through an exponentially weighted moving average (ewma) or cumulative sum of movement above the mean (cusum). The final filter is a match filter which finds the probablity of the trace matching a prior defined shape, such as one described by an exponetional rise and decay of calcium signal.
+
 Matched Filter
 
 # Visualization
-`pyNeuroTrace` has several in built visualization tools. 2D arrays of neuronal timeseries can be displayed as heat maps \autoref{fig:heatmap} or as individual traces \autoref{fig:traces}. 
+`pyNeuroTrace` has several in built visualization tools. 2D arrays of neuronal timeseries can be displayed as heat maps \autoref{fig:heatmap} or as individual traces \autoref{fig:traces}. The heatmap is a useful visualization tool for a larger number of traces, additionally at the bottom of the plot the stimuli timing is displayed if provided \autoref{fig:heatmap}. This allows for quick visual inspection of activity from a population of neurons or from 
 
 ![Caption for example figure.\label{fig:heatmap}](docs/img/pyntIntensity.png)
 
@@ -75,7 +78,7 @@ Figures can be included like this:
 
 and referenced from text using \autoref{fig:example}.
 
-Figures can be included like this:
+One of these in-built visualizations is specefic to the data structure generated by a custom acusto-optic 
 
 ![Example of lab specific visualation of  \label{fig:AODtree}](docs/img/pyntPlanar.png)
 
