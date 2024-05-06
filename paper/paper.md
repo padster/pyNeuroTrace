@@ -1,5 +1,5 @@
 ---
-title: PyNeuroTrace - Python code for Neural Timeseries
+title: PyNeuroTrace - Python code for neural timeseries
 tags:
   - Python
   - neuroscience
@@ -25,22 +25,23 @@ authors:
 affiliations:
   - name: 'Department of Cellular and Physiological Sciences, Centre for Brain Health, School of Biomedical Engineering, University of British Columbia, Vancouver, Canada'
     index: 1
-date: '14 April 2024'
+date: '05 May 2024'
 bibliography: 'paper.bib'
+
 --- 
 
 # Summary
 
-Modern techniques in optophysiology have allowed neuroscientists unprecedented access to neuronal activity *in vivo*. The time series datasets generated from these experiments are becoming increasing larger as new technologies allow for faster acquistion rates of raw data. These fluorscent recordings are being made with an ever expanding library of indicators encoding calcium, voltage, neurotransimitter and neuromodulator activity. These signals generated from these fluorscent bioindicators contain the information of the underlying neuronal activity but all have unique molecular kinetics and inherit signal-noise ratios which must be taken into account during singal processing. The development of pyNeuroTrace, an open-source Python library, was made to aid in the processing of these neurnal signals which must be filtered with these unique aspects in mind before analysis can be completed.
+Modern techniques in optophysiology have allowed neuroscientists unprecedented access to neuronal activity *in vivo*. The time series datasets generated from these experiments are becoming increasingly larger as new technologies allow for faster acquisition rates of raw data. This raw data is sourced from an ever-expanding library of fluorescent indicators encoding calcium, voltage, neurotransmitter, and neuromodulator activity. These diverse signals generated from these fluorescent bioindicators contain information on the underlying neuronal activity. Still, processing these signals is non-trivial, as each indicator has unique molecular kinetics and inherent signal-to-noise ratios. The signals are also acquired with different instruments, which differ in sensitivity and acquisition rate, all of which must be considered during signal processing. The development of pyNeuroTrace, an open-source Python library, was made to aid in processing these neuronal signals, which must be filtered with these unique aspects in mind before analysis of the underlying neuronal activity can be completed.
 
 # Statement of need
 
-Many neuroscience labs that use optophysiological methods, such as two-photon microscopy or fibrephotomotery, frequently must rewrite and maintain common functions and filters needed to analysis the raw recordings. Furthermore, many technique and algorithms for signal processing are scattered throughout the literature and are frequently implemented programing languages other than Python. `pyNeuroTrace` meets the need of a time series analysis written purely in Python for neuronal activity. Our package is a collection of filters and algorithms implemented in a genralizable manner for time series data in either 1D-arrays or a collection of recording in a 2D-arrays. Additionally, with the increase in aquistion rate of new imaging techniques, we have implementations of these algorithms using GPU compatiable code to increase the speed in which the techniques can be applied to larger datasets collected at kilohertz rates.
+Many neuroscience labs that use optophysiological methods, such as two-photon microscopy or fiber photometry, frequently must rewrite and maintain standard functions and filters needed to analyze the raw recordings from experiments. Furthermore, many techniques and algorithms for signal processing are scattered throughout the literature and are frequently implemented in programming languages other than Python. `pyNeuroTrace` meets the need of a time series analysis package written purely in Python for neuronal activity. Our package is a collection of filters and algorithms implemented in a generalizable manner for time series data in either 1D arrays or a collection of recordings in 2D arrays. Additionally, with the increase in acquisition rates of new imaging techniques, we have implemented a subset of these algorithms using GPU-compatible code to increase the speed at which the methods can process larger datasets collected at kilohertz rates.
 
 # Signal Processing
 
 ## DeltaF/F
-There are several methods for calculating the change of intensity of a fluorscent trace [@Grienberger2022]. We implemented the method described by Jia *et al* for the calculation of $\Delta F/F$ normalizes the signal to a baseline which helps with bleaching or other changes that occur over time which influence the detection or magnitude of events in the raw signal[@Jia2010]. This implementation includes several smoothing steps to help with shot noise[@Jia2010]. In short, $F_\theta$  is calculated by finding a the minmum signal in a window of the rolling average of the raw signal. Then $\Delta F$ is calculated by the difference in the raw signal and $F_\theta$, which is then divided by $F_\theta$ to get the trace for  $\Delta F/F_\theta$ . This $\Delta F/F_\theta$ signal is optionally smoothed using an exponetially wieghted moving average (ewma) to further remove shot noise. Jia *et al* defined their rolling average with the following equation:
+There are several methods for calculating the change of intensity of a fluorescent trace [@Grienberger2022]. We implemented the method described by Jia *et al* for the calculation of $\Delta F/F$, which normalizes the signal to a baseline, helping with bleaching or other changes that occur over time, influencing the detection or magnitude of events in the raw signal[@Jia2010]. This implementation includes several smoothing steps to help with shot noise[@Jia2010]. In short, $F_\theta$  is calculated by finding the minimum signal in a window of the rolling average of the raw signal. Then $\Delta F$ is calculated by the difference in the raw signal and $F_\theta$, which is then divided by $F_\theta$ to get the trace for  $\Delta F/F_\theta$. This $\Delta F/F_\theta$ signal can be optionally smoothed using an exponentially weighted moving average (EWMA) to remove shot noise. Jia *et al* defined their rolling average with the following equation:
 
 $$\bar{F} = \left(\frac{1}{\tau_1}\right) \int_{x-\tau_1/2}^{x+\tau_1/2} F(\tau) \, d\tau$$
 
@@ -48,46 +49,61 @@ $$\bar{F} = \left(\frac{1}{\tau_1}\right) \int_{x-\tau_1/2}^{x+\tau_1/2} F(\tau)
 The variable $F_ \theta$ is defined using a second time constant, $\tau_2$, that defines a rolling window to search for the minimum smoothed signal value to be used as a baseline: 
 $$ F_ \theta(t) = min (\bar F(x) ) | t- \tau_2 < x < t $$
 
-Thus $\Delta F/F$ is where $F$ is the orginal raw signal:
+Thus $\Delta F/F$ is where $F$ is the original raw signal:
 $$
 \Delta F/F = \frac{ F(t)- F_ \theta }{ F_ \theta }
 $$
 
-The two time constants, $\tau_{1}$ and $\tau_{2}$, can be selected by users. Modifying the these parameters will have a dramatic influence on the output signal.
+The two time constants, $\tau_{1}$ and $\tau_{2}$, can be selected by users. Modifying these parameters will have a dramatic influence on the output signal.
 
 ## Okada Filter
-We implement the Okada Filter in Python[@Okada2016]. This filter is designed to filter shot-noise from traces in low-signal to noise paradigms, which is common for calcium imaging with two-photon imaging where the collected photon count is low and noise from PMT can be nontrivial. 
+We implement the Okada Filter in Python[@Okada2016]. This filter is designed to filter shot noise from traces in low-signal to noise paradigms, which is common for calcium imaging with two-photon imaging where the collected photon count is low, and noise from PMT can be nontrivial. This filter is defined by Okada *et al* as:
+$$
+ x_{t} \leftarrow x_{t} + \frac{x_{t-1} + x_{t+1} - 2x_{t}}{2(1 + e^{-\alpha (x_{t} - x_{t-1})(x_{t} - x_{t+1})})}
+$$
+
+In this equation $x_{t}$ is the value in the neural activity trace at time $t$. The value for $\alpha$, which is a coefficient, should be selected so that the product of $x_{t} - x_{t}$ and $x_{t} - x_{t+1}$ causes a sufficiently steep sigmoid curve which functions a binary filter in the equation. This function is equivalent to the following conditional states from Okada *et al*:
+
+$$
+ \text{If } (x_{t} - x_{t-1})(x_{t} - x_{t+1}) \leq 0 \
+$$
+$$
+x_{t} \leftarrow x_{t} \
+$$
+$$
+ \text{If } (x_{t} - x_{t-1})(x_{t} - x_{t+1}) > 0 
+$$
+$$
+ x_{t} \leftarrow \frac{x_{t-1} + x_{t+1}}{2}
+$$
+
+Essentially, the Okada filter replaces the point, $x_{t}$, in a trace with the average of adjacent values when the product of the differences in adjacent values is greater than one. One useful characteristic of this smoothing algorithm is that it does not move the start position of events like other algorithms do [@Okada2016]
 
 ## Nonnegative Deconvolution
-`pyNeuroTrace` also has an implementation of nonnegative deconvolution (NND) to be applied to photocurrents to reduce noise in raw time series recordings [@Podgorski2012]. These alogrithm can also be used to aid in the detection of events associated with neuronal activity which follow similiar decays as photocurrents from detects, as small events in fluorscent imaging are often obfuscated by noise in the signal[@Podgorski2012].
+`pyNeuroTrace` also has an implementation of nonnegative deconvolution (NND) to be applied to photocurrents to reduce noise in raw time series recordings [@Podgorski2012]. Another application of this algorithm is its use in event detection in neuronal activity traces, which, due to biosensor kinetics, follow similar decays as photocurrents from detectors [@Podgorski2012]. This can be particularly useful for finding smaller magnitude events in fluorescent imaging that are often obfuscated by machine noise @Podgorski2012.
 
 # Event Detection
-The event detection module uses several strategies to indentify neuronal activity in time series datasets. These methodologies have been previously discussed and compared by Sakaki *et al* [@Sakaki2018]. These include to generalizable methods and one that requires prior knowledge of recorded event shape. The generalizable methods include filtering the signal through an exponentially weighted moving average (ewma) or cumulative sum of movement above the mean (cusum). The final filter is a match filter which finds the probablity of the trace matching a prior defined shape, such as one described by an exponetional rise and decay of calcium signal.
-
-Matched Filter
+The event detection module uses several strategies to identify neuronal activity in time series datasets. These methodologies have been previously discussed and compared by Sakaki *et al* [@Sakaki2018]. These include two generalizable methods and one that requires prior knowledge of recorded event shape. The generalizable methods include filtering the signal through an exponentially weighted moving average (ewma) or cumulative sum of movement above the mean (cusum). The final filter is a matched filter that finds the probability of the trace matching a previously defined shape, such as one described by an exponential rise and decay of calcium signal generated by a GECI.
 
 # Visualization
-`pyNeuroTrace` has several in built visualization tools. 2D arrays of neuronal timeseries can be displayed as heat maps \autoref{fig:heatmap} or as individual traces \autoref{fig:traces}. The heatmap is a useful visualization tool for a larger number of traces, additionally at the bottom of the plot the stimuli timing is displayed if provided \autoref{fig:heatmap}. This allows for quick visual inspection of activity from a population of neurons or from 
+`pyNeuroTrace` has several built-in visualization tools depending on the format of the data. 2D arrays of neuronal timeseries can be displayed as heat maps \autoref{fig:heatmap} or as individual traces \autoref{fig:traces}. The heatmap is a useful visualization tool for inspecting many traces at once; additionally, at the bottom of the plot, the stimuli timing is displayed if provided \autoref{fig:heatmap}. This functionality allows for quick visual inspection of activity from a population of neurons or signals sampled across a neuronal structure, such as a dendritic arbor.
 
-![Caption for example figure.\label{fig:heatmap}](docs/img/pyntIntensity.png)
+![An example of a heatmap generated by pyNeuroTrace \label{fig:heatmap}](docs/img/pyntIntensity.png)
 
-and referenced from text using \autoref{fig:heatmap}
-Figures can be included like this:
+For individual activity traces or small numbers of traces, 'pyNeuroTrace' has a line plot feature \autoref{fig:traces}. This is an ideal option for inspecting the shape of events, which may be difficult to appreciate from the colormaps in the heatmap visualization. Dotted lines are plotted vertically across the traces of neural activity to indicate when stimulus presentation occurred during an experiment.  
 
-![Caption for example figure.\label{fig:traces}](docs/img/pyntLines.png)
+![Six GCaMP7f calcium traces plotted with stimulus times below \label{fig:traces}](docs/img/pyntLines.png)
 
-and referenced from text using \autoref{fig:example}.
+One of these in-built visualizations is specific to the data structure generated by a custom acousto-optic random access microscope [@Sakaki2020] \autoref{fig:AODtree}. This microscope uses acousto-optic deflectors (AODs) to perform inertia-free scanning between preselected points of interest, allowing for extremely fast acquisition rates for sampling neuronal activity. The scan engine of the microscope allows for random access imaging that is used to image the activity across the morphology of a single neuron [@Sakaki2020]. This type of imaging does not generate a traditional image. The microscope instead links acquired neuronal traces to points of interest organized into a hierarchical tree structure representing the neuronal morphology in a complex data file.  
 
-One of these in-built visualizations is specefic to the data structure generated by a custom acusto-optic 
-
-![Example of lab specific visualation of  \label{fig:AODtree}](docs/img/pyntPlanar.png)
+![An example of a lab-specific visualisation of points of interest across a dendritic arbor imaged with an AOD microscope \label{fig:AODtree}](docs/img/pyntPlanar.png)
 
 # GPU Acceleration
-Several of the filters in `pyNeuroTrace` have been rewritten to be almost entirerly vectorized in their calculations. The benefit being a noticable difference in the performance for larger time series. These vectorized versions gain further speed by being excuted on a GPU using the Cupy Python library [@cupy_learningsys2017]. To excuted these versions the filters can be imported from the module, `pyneruopyneurotrace.gpu.filters`, and a CUDA compatiable graphics card is needed. This functionality is becoming increasingly important as acquisition rates increase for kilohertz imaging of activity can generate arrays hundreds of thousands of datapoints in length in just a few minutes. \autoref{fig:CPUvsGPU} shows the difference in calculating arrays of various sizes using either the CPU or vectorized GPU based approach of the dF/F function. The CPU used in these calcultions was a Intel i5-9600K with six 4.600GHz cores, the GPU was a NVIDIA GeForce RTX 4070 with CUDA Version 12.3. 
+Several of the filters in `pyNeuroTrace` have been rewritten to be almost entirely vectorized in their calculations. The benefit is more noticeable when comparing the difference in performance while using a longer time series or one acquired with faster acquisition rates. These vectorized implementations gain further speed by being executed on a GPU using the Cupy Python library [@cupy_learningsys2017]. The GPU-accelerated filters can be imported from the `pyneurotrace.gpu.filters` module, and a CUDA-compatible graphics card is required for their execution. This functionality is becoming increasingly crucial as acquisition rates increase for kilohertz imaging of activity, which can generate arrays of hundreds of thousands of data points in length in just a few minutes. \autoref{fig:CPUvsGPU} shows the difference in calculating arrays of various sizes using either the CPU or vectorized GPU-based approach of the dF/F function. The CPU used in these calculations was an Intel i5-9600K with six 4.600GHz cores; the GPU was an NVIDIA GeForce RTX 4070 with CUDA Version 12.3. 
 
-![Comparison between dF/F with EWMA calculations for different array sizes. \label{fig:CPUvsGPU}](docs/img/pyntdffCalculationCPUvsGPU.png)
+![Comparison between $\Delta F/F$ with EWMA calculations for different array sizes using either the CPU (blue) or GPU (orange). \label{fig:CPUvsGPU}](docs/img/pyntdffCalculationCPUvsGPU.png)
 
-To vectorize the functions several where modified. For example the EMWA used to smooth the dF/F signal as described by Jia *et al* was changed to an approximation using convolution with an exponetional function. The kernel used to perform is defined as:
+To vectorize the functions several where modified. For example the EMWA used to smooth the dF/F signal as described by Jia *et al* was changed to an approximation using convolution with an exponetional function. The kernel used to perform this is defined as:
 
 $$w[i] = \begin{cases} 
 \alpha \cdot (1 - \alpha)^i & \text{for } i = 0, 1, 2, \dots, N-1 \\
@@ -96,25 +112,26 @@ $$w[i] = \begin{cases}
 
 Where $\alpha$ is defined as:
 
-$$ \alpha = 1 - e^-\frac{1}{\tau}$$
- $\tau$ where is a user selected time constant which is translated into number of samples. $N$ is a window parameter for the kernal calcuated using $\alpha$:
+$$ \alpha = 1 - e^{-\frac{1}{\tau}}$$
+ $\tau$ is a user-selected time constant in seconds, which is translated into the number of samples using the acquisition rate used to acquire the data. $N$ is a window parameter for the kernal calcuated using $\alpha$:
  $$N = \left\lfloor -\frac{\log(10^{-10})}{\alpha} \right\rfloor$$
  
-This allows a filter for smaller values that have a minisclue influence on the weighted average. The kernel needs to be normalized to produce smoothing with the same output value as the non-vectorized impementation:
+This filters for smaller values that have a minuscule influence on the weighted average. The kernel needs to be normalized to produce smoothing with the same output value as the non-vectorized impementation:
 
 $$w[i] \leftarrow \frac{w[i]}{\sum_{j=0}^{N-1} w[j]}$$
 The normalized kernel is then convolved with the dF/F signal, d:
 $$c[k] = \sum_{i=0}^{N-1} w[i]\cdot d[k-i]$$
 
-This convolved signal, $c$ is then normalized to the cummulative sum of the exponetial kernel:
+This convolved signal, $c$ is then normalized to the cumulative sum of the exponential kernel:
 
 $$n[j] = \sum_{i=0}^{j} w[i]$$
 
-$$emwa = c[i]/n[i]$$
-
-Differences between the CPU and GPU implenetations of the EWMA for an array of ranom values have been plotted \autoref{fig:ewmaCPUvsGPU}. These were generated from the same array using the respective decays for either implementation using the time constant of 50 miliseconds and a sampling rate of 2kHz. The difference between the two outputs typically range in magnitude from  1e-16 to 1e-12 depending on user parameters. These discrepancies can also be attributed to differences in floating point number accuracy between CPU and GPU calcultations.
+$$emwa = \frac{c[i]}{n[i]}$$
 
 ![Overlay of the EWMA calculations using the CPU implementation and GPU approximation in red and blue. The difference in values from the output is also plotted. \label{fig:ewmaCPUvsGPU}](docs/img/ewma_CPUvsGPU.png)
+
+To demonstrate the differences between the CPU and GPU implementations of the EWMA calculations were performed on an array of random values \autoref{fig:ewmaCPUvsGPU}. These were generated from the same array using the respective decays for either implementation using the time constant of 50 milliseconds and a sampling rate of 2kHz. Depending on user parameters, the difference between the two outputs typically ranges in magnitude from  1e-16 to 1e-12. These discrepancies can also be attributed to differences in floating-point number accuracy between CPU and GPU calculations.
+
 
 # Acknowledgements
 
