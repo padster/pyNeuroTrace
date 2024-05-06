@@ -47,9 +47,11 @@ $$\bar{F} = \left(\frac{1}{\tau_1}\right) \int_{x-\tau_1/2}^{x+\tau_1/2} F(\tau)
 
 
 The variable $F_ \theta$ is defined using a second time constant, $\tau_2$, that defines a rolling window to search for the minimum smoothed signal value to be used as a baseline: 
+
 $$ F_ \theta(t) = min (\bar F(x) ) | t- \tau_2 < x < t $$
 
 Thus $\Delta F/F$ is where $F$ is the original raw signal:
+
 $$
 \Delta F/F = \frac{ F(t)- F_ \theta }{ F_ \theta }
 $$
