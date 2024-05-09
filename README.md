@@ -36,8 +36,7 @@ These include:
 `filters.okada(traces)`
 > Reduces noise in traces by smoothing single peaks or valleys, as described in [Okada et al, 2016](https://doi.org/10.1371/journal.pone.0157595)
 
-`filters.oasisSmooth(traces)`
-> removes noise in traces by applying the [OASIS](https://github.com/j-friedrich/OASIS) algorithm, returning the smoothed best fit after deconvolution.
+
 
 ## Event Detection
 
