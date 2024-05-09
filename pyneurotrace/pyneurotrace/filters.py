@@ -1,23 +1,7 @@
-# from oasis.functions import deconvolve as oasisDeconvolve
 import math
 import numpy as np
 
 from .nndFilter import nonNegativeDeconvolution as NND
-
-"""
-Friedrich, J., Zhou, P., & Paninski, L. (2017).
-Fast online deconvolution of calcium imaging data.
-PLoS computational biology, 13(3), e1005423.
-"""
-def oasisSmooth(data, iterFunc=None):
-    def _singleRowOasis(samples):
-        #clean, _, _, _, _ = oasisDeconvolve(samples)
-        clean, events, _, gParams, _ = oasisDeconvolve(samples, optimize_g=5)
-        #print (gParams)
-        #clean, _, _, _, _ = oasisDeconvolve(samples, g=(None, None), optimize_g=5)
-        return clean
-    return _forEachTimeseries(data, _singleRowOasis, iterFunc)
-
 
 """
 Podgorski, K., & Haas, K. (2013).
