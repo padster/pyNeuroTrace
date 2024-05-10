@@ -1,6 +1,11 @@
 # PyNeuroTrace: Python code for Neural Timeseries
 
 ## Installation
+'pyNeuroTrace' can be installed with pip:
+
+```
+pip install pyNeuroTrace
+```
 
 This library can be installed directly from github, using pip:
 ```
