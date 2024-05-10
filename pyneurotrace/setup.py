@@ -129,6 +129,10 @@ setup(
     #
     #   py_modules=["my_module"],
     #
+
+    [tool.setuptools]
+    py-modules = []
+    
     packages=find_packages(exclude=['contrib', 'docs', 'tests', 'paper']),  # Required
 
     # This field lists other packages that your project depends on to run.
