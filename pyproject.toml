@@ -2,7 +2,7 @@
 name = "pyNeuroTrace"
 version = "0.8.0"
 authors = [
-    { name="Pat Coleman", email="padsterpat@gmail.com" }
+    { name="Pat Coleman", email="padsterpat@gmail.com" },
 
     { name="Peter Hogg", email="peter.hogg@ubc.ca" },
 ]
