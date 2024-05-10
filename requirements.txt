@@ -1,0 +1,8 @@
+ipython
+ipywidgets
+matplotlib
+matplotlib-scalebar
+numpy
+PyQt5
+scipy
+tqdm
