@@ -131,7 +131,7 @@ setup(
     #
   
     
-    packages=find_packages('pyneurotrace', exclude=['contrib', 'docs', 'tests', 'paper']),  # Required
+    packages=find_packages(include=['pyneurotrace'], exclude=['contrib', 'docs', 'tests', 'paper']),  # Required
 
     # This field lists other packages that your project depends on to run.
     # Any package you put here will be installed by pip when your project is
