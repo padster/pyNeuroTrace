@@ -1,10 +1,4 @@
-"""
-Tools for detecting and analysing transient events within traces.
-"""
-
-import numpy as np
-
-from .filters import _forEachTimeseries
+import cupy as cu
 
 """
 EWMA:  Exponentially Weighted Moving Average
@@ -73,3 +67,7 @@ def thresholdEvents(data, threshold, minBelowBefore=1):
 
             return isEvent.astype(cu.int32)
     return _forEachTimeseries(data, _singleRowThreshold)
+
+
+
+__all__ = ['ewma', 'cusum', 'thresholdEvents'] 

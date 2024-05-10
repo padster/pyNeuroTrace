@@ -102,3 +102,6 @@ def thresholdEvents(data, threshold, minBelowBefore=1):
             numBelowBefore = numBelowBefore + 1 if below else 0
         return isEvent
     return _forEachTimeseries(data, _singleRowThreshold)
+
+
+__all__ = ["ewma", "cusum", "thresholdEvents", "matchedFilter"]

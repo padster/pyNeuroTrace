@@ -87,3 +87,22 @@ def _forEachTimeseries(data, func, iterFunc=None):
             for j in iterFunc(range(data.shape[1])):
                 result[i, j] = func(data[i, j])
     return result.get()
+
+# Input is either 1d (timeseries), 2d (each row is a timeseries) or 3d (x, y, timeseries)
+def _forEachTimeseries(data, func, iterFunc=None):
+    if iterFunc is None:
+        iterFunc = lambda x: x
+    dim = len(data.shape)
+    result = np.zeros(data.shape)
+    if dim == 1: # single timeseries
+        result = func(data)
+    elif dim == 2: # (node, timeseries)
+        for i in iterFunc(range(data.shape[0])):
+            result[i] = func(data[i])
+    elif dim == 3: # (x, y, timeseries)
+        for i in iterFunc(range(data.shape[0])):
+            for j in iterFunc(range(data.shape[1])):
+                result[i, j] = func(data[i, j])
+    return result
+
+__all__ = ['okada', 'deltaFOverF0', '_forEachTimeseries'] 
