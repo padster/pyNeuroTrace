@@ -1,3 +1,37 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools >= 41.0"]
 build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pyNeuroTrace"
+version = "0.8.0"
+dependencies = [
+    "numpy",
+    "scipy",
+    "h5py",
+    "scikit-image",
+]
+requires-python = ">=3.9"
+authors = [
+    { name="Pat Coleman", email="padsterpat@gmail.com" },
+
+    { name="Peter Hogg", email="peter.hogg@ubc.ca" }
+]
+description = "Python code for neural time series"
+readme = "README.md"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Operating System :: OS Independent",
+]
+
+keywords=[ "neuron", "analysis", "timeseries", "neuroscience"]
+
+[project.optional-dependencies]
+GPU = ["cupy"]
+
+[project.urls]
+Homepage = "https://github.com/padster/pyNeuroTrace"
+Issues = "https://github.com/padster/pyNeuroTrace/issues"
