@@ -130,7 +130,7 @@ setup(
     #   py_modules=["my_module"],
     #
   
-    packages=['pyneurotrace'],
+    packages=['pyneurotrace', 'pyneurotrace.gpu'],
     #packages=find_packages(include=['pyneurotrace'], exclude=['contrib', 'docs', 'tests', 'paper']),  # Required
 
     # This field lists other packages that your project depends on to run.
