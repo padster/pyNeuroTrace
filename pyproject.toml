@@ -1,0 +1,26 @@
+[project]
+name = "pyNeuroTrace"
+version = "0.8.0"
+authors = [
+    { name="Pat Coleman", email="padsterpat@gmail.com" }
+
+    { name="Peter Hogg", email="peter.hogg@ubc.ca" },
+]
+description = "Python code for Neural Timeseries"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "h5py",
+    "scikit-image",
+    "cupy"
+]
+[project.urls]
+Homepage = "https://github.com/padster/pyNeuroTrace"
+Issues = "https://github.com/padster/pyNeuroTrace/issues"
