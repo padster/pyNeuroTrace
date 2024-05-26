@@ -14,7 +14,7 @@ pip install --upgrade "git+https://github.com/padster/pyNeuroTrace#egg=pyneurotr
 
 ## Vizualization
 
-Probably the most useful section of pynt, there are a number of visualization functions provided to help display the trace data in easy to understand formats. For more details, and visual examples of what is available, please consult the [README](https://github.com/padster/pyNeuroTrace/tree/master/pyneurotrace/pyneurotrace) next to viz.py.
+Probably the most useful section of pyNeuroTrace, there are a number of visualization functions provided to help display the trace data in easy to understand formats. For more details, and visual examples of what is available, please consult the [README](https://github.com/padster/pyNeuroTrace/tree/master/pyneurotrace) next to viz.py.
 
 ## Notebook utilities
 
@@ -31,7 +31,7 @@ The method provided expects `func(idx, key, value)`, where `idx` is the (0-based
 
 ## Processing Data
 
-Common per-trace processing filters are provided within [filters.py](https://github.com/padster/pyNeuroTrace/blob/master/pyneurotrace/pyneurotrace/filters.py). These are all designed to take a numpy array of traces, with each row an independent trace, and all return a filtered array of the same size.
+Common per-trace processing filters are provided within [filters.py](https://github.com/padster/pyNeuroTrace/tree/master/pyneurotrace/filters.py). These are all designed to take a numpy array of traces, with each row an independent trace, and all return a filtered array of the same size.
 
 These include:
 
@@ -60,9 +60,9 @@ The results of each of these three detection filters can then be passed through 
 
 ## Reading Data (lab-specific)
 
-The code within this repository was designed to read data from experiments performed by the [Kurt Haas lab](http://www.haaslab.com/) at UBC. If you're from this lab, read below. If not, this part is probably not relevant, but fee free to ask if you'd be interested in loading your own data file formats.
+The code within this repository was designed to read data from experiments performed by the [Kurt Haas lab](https://cps.med.ubc.ca/faculty/haas/) at UBC. If you're from this lab, read below. If not, this part is probably not relevant, but fee free to ask if you'd be interested in loading your own data file formats.
 
-A number of options for loading data files are available within [files.py](https://github.com/padster/pyNeuroTrace/blob/master/pyneurotrace/pyneurotrace/files.py), including:
+A number of options for loading data files are available within [files.py](https://github.com/padster/pyNeuroTrace/tree/master/pyneurotrace/files.py), including:
 * `load2PData(path)` takes an experiment output file (e.g STEP_5_EXPT.TXT) and returns ID, XYZ location, and raw intensity values for each node in the experiment.
 * `loadMetadata(path)` takes a metadata file (e.g. rscan_metadata_step_5.txt) and returns the stimulus start/stop samples, as well as the sample rate for the experiment.
 * `loadTreeStructure(path)` takes a tree structure file (e.g. interp-neuron-.txt) and returns the mapping of node IDs to tree information about that node (e.g. node type, children, ...).
