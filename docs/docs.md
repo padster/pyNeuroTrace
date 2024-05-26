@@ -13,7 +13,7 @@ The will file will provide and overview documentation of the pyNeuroTrace librar
     - [morphology](#morphology)
     - [notebook](#notebook)
     - [viz](#viz)
-4. [Examples][#Examples]        
+4. [Examples](#Examples)
 
 
 # Installation
