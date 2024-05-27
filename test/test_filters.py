@@ -36,5 +36,6 @@ def test_deltaFOverF0():
     assert result.shape == data.shape
     assert isinstance(result, np.ndarray)
     assert data.any() != result.any()
+
 if __name__ == '__main__':
     pytest.main()
