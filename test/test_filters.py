@@ -12,7 +12,8 @@ def test_nndSmooth():
     
     assert isinstance(result, np.ndarray)
     assert result.shape == data.shape
-    assert data.any() != result.any()
+    assert not np.isnan(result).any()
+    assert not np.allclose(data, result)
 
 def test_okada():
     data = np.random.random(150)
@@ -22,8 +23,8 @@ def test_okada():
     
 
     assert result.shape == data.shape
-    assert isinstance(result, np.ndarray)
-    assert data.any() != result.any()
+    assert not np.isnan(result).any()
+    assert not np.allclose(data, result)
 
 
 def test_deltaFOverF0():
@@ -35,7 +36,8 @@ def test_deltaFOverF0():
     # Assert the shape is the same
     assert result.shape == data.shape
     assert isinstance(result, np.ndarray)
-    assert data.any() != result.any()
+    assert not np.isnan(result).any()
+    assert not np.allclose(data, result)
 
 if __name__ == '__main__':
     pytest.main()
