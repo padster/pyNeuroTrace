@@ -1,5 +1,5 @@
 # PyNeuroTrace: Python code for Neural Timeseries
-[Tests][(https://github.com/padster/pyNeuroTrace/actions/workflows/python-test.yml/badge.svg)](https://github.com/padster/pyNeuroTrace/actions/workflows/python-test.yml)
+[Tests](https://github.com/padster/pyNeuroTrace/actions/workflows/python-test.yml)[(https://github.com/padster/pyNeuroTrace/actions/workflows/python-test.yml/badge.svg)]
 
 ## Installation
 'pyNeuroTrace' can be installed with pip:
