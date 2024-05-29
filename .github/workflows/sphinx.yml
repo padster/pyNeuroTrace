@@ -2,7 +2,7 @@ name: Sphinx Build
 on:
   push:
     branches:
-      - main  # or the branch you want to trigger the action
+      - master
 
 jobs:
   build:
