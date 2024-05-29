@@ -1,0 +1,11 @@
+name: "Sphinx Build"
+on:
+  push:
+    branches:
+    - main
+    - release/*
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ammaraskar/sphinx-action@0.4
