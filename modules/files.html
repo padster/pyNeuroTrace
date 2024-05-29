@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Files &mdash; pyneurotrace 0.95.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=79a6a0ef"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Filters" href="filters.html" />
+    <link rel="prev" title="Events" href="events.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyneurotrace
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Modules</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="events.html">Events</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyneurotrace.files.load2PData"><code class="docutils literal notranslate"><span class="pre">load2PData()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyneurotrace.files.loadMetadata"><code class="docutils literal notranslate"><span class="pre">loadMetadata()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyneurotrace.files.loadTreeStructure"><code class="docutils literal notranslate"><span class="pre">loadTreeStructure()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyneurotrace.files.loadNodeXYZ"><code class="docutils literal notranslate"><span class="pre">loadNodeXYZ()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyneurotrace.files.loadKymograph"><code class="docutils literal notranslate"><span class="pre">loadKymograph()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyneurotrace.files.loadSingleStep"><code class="docutils literal notranslate"><span class="pre">loadSingleStep()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyneurotrace.files.loadHybrid"><code class="docutils literal notranslate"><span class="pre">loadHybrid()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="filters.html">Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="morphology.html">Morphology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebook.html">Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viz.html">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyneurotrace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Modules</a></li>
+      <li class="breadcrumb-item active">Files</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/files.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="files">
+<h1>Files<a class="headerlink" href="#files" title="Link to this heading"></a></h1>
+<p>Tools for loading and processing experimental data.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyneurotrace.files.load2PData">
+<span class="sig-prename descclassname"><span class="pre">pyneurotrace.files.</span></span><span class="sig-name descname"><span class="pre">load2PData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hasLocation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyneurotrace.files.load2PData" title="Link to this definition"></a></dt>
+<dd><p>Load Node IDs, positions, and raw data from an EXPT.TXT file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>string</em>) – Path to the EXPT.TXT file.</p></li>
+<li><p><strong>hasLocation</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag indicating if location data is available. Default is <cite>True</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>nodeIDs</strong> (<em>np.array</em>) – List of node IDs.</p></li>
+<li><p><strong>positions</strong> (<em>np.array</em>) – Node positions (if <cite>hasLocation</cite> is <cite>True</cite>).</p></li>
+<li><p><strong>rawData</strong> (<em>np.array</em>) – Raw trace data.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyneurotrace.files.loadMetadata">
+<span class="sig-prename descclassname"><span class="pre">pyneurotrace.files.</span></span><span class="sig-name descname"><span class="pre">loadMetadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyneurotrace.files.loadMetadata" title="Link to this definition"></a></dt>
+<dd><p>Load stimulus [start, end] sample indices, plus sample rate, from the rscan_metadata .txt file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>string</em>) – Path to the metadata file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>stimIndices</strong> (<em>array</em>) – Array of stimulus start and end indices.</p></li>
+<li><p><strong>hz</strong> (<em>float</em>) – Sample rate in Hz.</p></li>
+<li><p><strong>xySizeM</strong> (<em>float</em>) – XY pixel size in meters</p></li>
+<li><p><strong>zStackLocations</strong> (<em>array</em>) – Array of Z stack locations.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyneurotrace.files.loadTreeStructure">
+<span class="sig-prename descclassname"><span class="pre">pyneurotrace.files.</span></span><span class="sig-name descname"><span class="pre">loadTreeStructure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyneurotrace.files.loadTreeStructure" title="Link to this definition"></a></dt>
+<dd><p>Load Tree structure (branch &amp; parent details) from an interp-neuron-.txt file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>string</em>) – Path to the tree structure file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>rootId</strong> (<em>int</em>) – ID of the root node.</p></li>
+<li><p><strong>nodes</strong> (<em>dict</em>) – Dictionary of nodes with their details.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyneurotrace.files.loadNodeXYZ">
+<span class="sig-prename descclassname"><span class="pre">pyneurotrace.files.</span></span><span class="sig-name descname"><span class="pre">loadNodeXYZ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyneurotrace.files.loadNodeXYZ" title="Link to this definition"></a></dt>
+<dd><p>Load (nodeID, x, y, z) from a file, separate from the traces file.
+Return as the list of IDs, then the list of positions.
+This supports having positions for nodes which have no trace recorded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>string</em>) – Path to the file containing node XYZ data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>nodeIDs</strong> (<em>array</em>) – List of node IDs.</p></li>
+<li><p><strong>positions</strong> (<em>array</em>) – Node positions.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyneurotrace.files.loadKymograph">
+<span class="sig-prename descclassname"><span class="pre">pyneurotrace.files.</span></span><span class="sig-name descname"><span class="pre">loadKymograph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pxlPerNode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">11</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyneurotrace.files.loadKymograph" title="Link to this definition"></a></dt>
+<dd><p>Load kymograph - a big (R x C) matrix with:
+a) First row is node IDs, every pxlPerNode (the rest being -1)
+b) The remaining are concatenated blocks of (R - 1) x (pxlPerNode) kymograph intensities
+This parses them out, and returns as a mapping of node ID -&gt; Kymograph data.
+Load kymograph data from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>string</em>) – Path to the kymograph file.</p></li>
+<li><p><strong>pxlPerNode</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of pixels per node. Default is <cite>11</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>kymoData</strong> – Dictionary mapping node IDs to kymograph data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyneurotrace.files.loadSingleStep">
+<span class="sig-prename descclassname"><span class="pre">pyneurotrace.files.</span></span><span class="sig-name descname"><span class="pre">loadSingleStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stepPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metaPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">treePath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xyzsPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kymoPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volumeXYZSource</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convertXYZtoPx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalizeXYZ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyneurotrace.files.loadSingleStep" title="Link to this definition"></a></dt>
+<dd><p>Loads as many of the above as possible for a single step of an experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stepPath</strong> (<em>string</em>) – Path to EXPT.TXT raw data traces.</p></li>
+<li><p><strong>metaPath</strong> (<em>string</em>) – Path to metadata file containing sample rate, stim times, and pixel sizes.</p></li>
+<li><p><strong>treePath</strong> (<em>string</em>) – Path to tree structure file.</p></li>
+<li><p><strong>xyzsPath</strong> (<em>string</em><em>, </em><em>optional</em>) – Path to mapping from ID to x/y/z location of all points in the tree.</p></li>
+<li><p><strong>kymoPath</strong> – Path to kymograph intensity time series for all scanned points.</p></li>
+<li><p><strong>volumeXYZSource</strong> (<em>array</em><em>, </em><em>optional</em>) – Source for position data if not available for all points (e.g., planar scan).</p></li>
+<li><p><strong>convertXYZtoPx</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag indicating if XYZ should be converted to pixels. Default is <cite>False</cite>.</p></li>
+<li><p><strong>normalizeXYZ</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag indicating if XYZ should be normalized. Default is <cite>False</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>stepData</strong> – Dictionary containing the data for a single step of an experiment.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyneurotrace.files.loadHybrid">
+<span class="sig-prename descclassname"><span class="pre">pyneurotrace.files.</span></span><span class="sig-name descname"><span class="pre">loadHybrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rootPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loadKymoData</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convertXYZtoPx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">getPlanarXYZFromVolume</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalizeXYZ</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyneurotrace.files.loadHybrid" title="Link to this definition"></a></dt>
+<dd><p>Loads an entire hybrid experiment from a folder, containing many scan results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rootPath</strong> (<em>string</em>) – Folder to load all the steps from.</p></li>
+<li><p><strong>loadKymoData</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag indicating whether to load kymographs. Default is <cite>False</cite>.</p></li>
+<li><p><strong>convertXYZtoPx</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag indicating if XYZ should be converted to pixels. Default is <cite>False</cite>.</p></li>
+<li><p><strong>getPlanarXYZFromVolume</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag indicating if planar XYZ should be obtained from volume. Default is <cite>False</cite>.</p></li>
+<li><p><strong>normalizeXYZ</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag indicating if XYZ should be normalized. Default is <cite>False</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>hybridData</strong> – Dictionary containing data for the entire hybrid experiment.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="events.html" class="btn btn-neutral float-left" title="Events" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="filters.html" class="btn btn-neutral float-right" title="Filters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Peter Hogg, Patrick Coleman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
