@@ -1,4 +1,5 @@
 import pytest
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from pyneurotrace.viz import plotIntensity, plotLine, plotAveragePostStimIntensity, plotAveragePostStimTransientParams, plotPlanarStructure, plotBaseTipScatter
@@ -30,11 +31,11 @@ def test_plotLine():
     plt.close(fig)
 
 def test_plotAveragePostStimIntensity():
-    def generate_exponential_decay_signal(length, tau):
-        t = np.arange(length)
-        signal = np.exp(-t / tau) + 0.1 * np.random.normal(size=length)
-        return signal
-
+    script_dir = os.path.dirname(__file__)
+    file_name = "test_array.npy" 
+    file_path = os.path.join(script_dir, file_name)
+    data  = np.load(file_path)
+    
     # Parameters
     num_signals = 10
     signal_length = 1000
@@ -44,8 +45,7 @@ def test_plotAveragePostStimIntensity():
     stimOnIdx = np.array([25, 35, 45, 55, 65, 75, 85, 95, 105])
 
 
-    data = np.array([generate_exponential_decay_signal(signal_length, tau) for _ in range(num_signals)])
-   
+
     fig, ax = plt.subplots()
     
     # Run the function to ensure it generates the plot without errors
