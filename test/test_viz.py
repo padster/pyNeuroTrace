@@ -46,21 +46,24 @@ def test_plotAveragePostStimIntensity():
 
 
 
-    #fig, ax = plt.subplots()
+    fig, ax = plt.subplots()
     
     # Run the function to ensure it generates the plot without errors
-    #plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx)
-    #plt.close(fig)
+    plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx)
+    plt.close(fig)
 
 def test_plotAveragePostStimTransientParams():
-    dfof = np.random.random((5,1000))
+    script_dir = os.path.dirname(__file__)
+    file_name = "test_array.npy" 
+    file_path = os.path.join(script_dir, file_name)
+    data  = np.load(file_path)
     hz = 10
     stimOffsets = np.array([2, 4, 6, 6, 8])
     secAfter = 3
     fig, ax = plt.subplots()
     
     # Run the function to ensure it generates the plot without errors
-    plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter)
+    plotAveragePostStimTransientParams(data, hz, stimOffsets, secAfter)
     plt.close(fig)
 
 def test_plotPlanarStructure():
