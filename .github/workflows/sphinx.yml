@@ -1,0 +1,14 @@
+name: Sphinx Build
+on: [push]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Sphinx Build 
+        uses: ammaraskar/sphinx-action@0.4
+        with:
+          docs-folder: docs/ # default
+          build-command: html # default
