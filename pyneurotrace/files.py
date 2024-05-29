@@ -17,6 +17,28 @@ Z_STACK_LOCATIONS_KEY = '#IMAGE_STACK_LOCATIONS_M'
 Load Node IDs, positions, and raw data from an EXPT.TXT file.
 """
 def load2PData(path, hasLocation=True):
+    """
+    Load Node IDs, positions, and raw data from an EXPT.TXT file.
+
+    Parameters
+    ----------
+
+    path : string
+        Path to the EXPT.TXT file.
+    hasLocation : bool, optional
+        Flag indicating if location data is available. Default is `True`.
+
+    Returns
+    ----------
+
+    nodeIDs : np.array
+        List of node IDs.
+    positions : np.array
+        Node positions (if `hasLocation` is `True`).
+    rawData : np.array
+        Raw trace data.
+    """
+
     print ("Loading 2P data from " + path)
     data = np.loadtxt(path)
     # With N nodes, this returns:
@@ -31,6 +53,29 @@ def load2PData(path, hasLocation=True):
 Load stimulus [start, end] sample indices, plus sample rate, from the rscan_metadata .txt file
 """
 def loadMetadata(path):
+    """
+    Load stimulus [start, end] sample indices, plus sample rate, from the rscan_metadata .txt file.
+
+    Parameters
+    ----------
+
+    path : string
+        Path to the metadata file.
+
+    Returns
+    ----------
+
+    stimIndices : array
+        Array of stimulus start and end indices.
+    hz : float
+        Sample rate in Hz.
+    xySizeM : float
+        XY pixel size in meters
+    zStackLocations : array
+        Array of Z stack locations.
+    """
+
+
     print ("Loading stim times from " + path)
     lines = []
     with open(path) as f:
@@ -66,10 +111,26 @@ def loadMetadata(path):
             at += 1
     return np.array(stimIndices), hz, xySizeM, np.array(zStackLocations)
 
-"""
-Load Tree structure (branch & parent details) from an interp-neuron-.txt file
-"""
+
+
 def loadTreeStructure(path):
+    """
+    Load Tree structure (branch & parent details) from an interp-neuron-.txt file.
+
+    Parameters
+    ----------
+    path : string
+        Path to the tree structure file.
+
+
+    Returns
+    ----------
+    rootId : int
+        ID of the root node.
+    nodes : dict
+        Dictionary of nodes with their details.
+  """
+
     print ("Loading tree structure from " + path)
     lines = []
     with open(path) as f:
@@ -100,12 +161,27 @@ def loadTreeStructure(path):
 
     return rootId, nodes
 
-"""
-Load (nodeID, x, y, z) from a file, separate from the traces file.
-Return as the list of IDs, then the list of positions.
-This supports having positions for nodes which have no trace recorded.
-"""
+
 def loadNodeXYZ(path):
+    """
+    Load (nodeID, x, y, z) from a file, separate from the traces file.
+    Return as the list of IDs, then the list of positions.
+    This supports having positions for nodes which have no trace recorded.
+
+    Parameters
+    ----------
+
+    path : string
+      Path to the file containing node XYZ data.
+
+    Returns
+    ----------
+    nodeIDs : array
+        List of node IDs.
+    positions : array
+        Node positions.
+    """
+    
     print ("Loading XYZ data from " + path)
     data = np.loadtxt(path)
     # With N nodes, this returns:
@@ -113,13 +189,31 @@ def loadNodeXYZ(path):
     nodeIDs = [int(idx) for idx in data[:, 0]]
     return nodeIDs, data[:, 1:4]
 
-"""
-Load kymograph - a big (R x C) matrix with:
-a) First row is node IDs, every pxlPerNode (the rest being -1)
-b) The remaining are concatenated blocks of (R - 1) x (pxlPerNode) kymograph intensities
-This parses them out, and returns as a mapping of node ID -> Kymograph data.
-"""
+
 def loadKymograph(path, pxlPerNode=11):
+    """
+    Load kymograph - a big (R x C) matrix with:
+    a) First row is node IDs, every pxlPerNode (the rest being -1)
+    b) The remaining are concatenated blocks of (R - 1) x (pxlPerNode) kymograph intensities
+    This parses them out, and returns as a mapping of node ID -> Kymograph data.
+    Load kymograph data from a file.
+
+    Parameters
+    ----------
+
+    path : string
+        Path to the kymograph file.
+    pxlPerNode : int, optional
+        Number of pixels per node. Default is `11`.
+
+    Returns
+    ----------
+    
+    kymoData : dict
+        Dictionary mapping node IDs to kymograph data.
+    
+    
+    """
     print ("Loading Kymograph data from " + path)
     data = np.loadtxt(path)
     assert data.shape[1] % pxlPerNode == 0
@@ -128,17 +222,37 @@ def loadKymograph(path, pxlPerNode=11):
         result[data[0, i]] = data[1:, i:(i+pxlPerNode)]
     return result
 
-"""
-Loads as many of the above as possible for a single step of an experiment.
 
-:param stepPath: Path to EXPT.TXT raw data traces
-:param metaPath: Path to metadata file containing sample rate, stim times, and pixel sizes.
-:param treePath: Path to tree structure file.
-:param xyzsPath: (optional) Path to mapping from ID to x/y/z location of all points in the tree.
-:param kymoPath: (optional) Path to kymograph intensity time series for all scanned points.
-:param volumeXYZSource: (optional) Source for position data if not available for all points (e.g. planar scan)
-"""
 def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, volumeXYZSource, convertXYZtoPx=False, normalizeXYZ=False):
+    """
+    Loads as many of the above as possible for a single step of an experiment.
+
+    Parameters
+    ----------
+    stepPath : string
+        Path to EXPT.TXT raw data traces.
+    metaPath : string
+        Path to metadata file containing sample rate, stim times, and pixel sizes.
+    treePath : string
+        Path to tree structure file.
+    xyzsPath : string, optional
+        Path to mapping from ID to x/y/z location of all points in the tree.
+    kymoPath: - string, optional
+        Path to kymograph intensity time series for all scanned points.
+    volumeXYZSource : array, optional
+        Source for position data if not available for all points (e.g., planar scan).
+    convertXYZtoPx : bool, optional
+        Flag indicating if XYZ should be converted to pixels. Default is `False`.
+    normalizeXYZ : bool, optional
+        Flag indicating if XYZ should be normalized. Default is `False`.
+
+    Returns
+    ----------
+    stepData : dict
+        Dictionary containing the data for a single step of an experiment.
+    """
+    
+    
     MAX_VOLUME_HZ = 20 # Hz above this are planar scans, below this are volume scans.
     
     stim, hz, xySizeM, zStackLocations = loadMetadata(metaPath)
@@ -193,13 +307,32 @@ def loadSingleStep(stepPath, metaPath, treePath, xyzsPath, kymoPath, volumeXYZSo
         'kymoData': kymoData
     }
 
-"""
-Loads an entire hybrid experiment from a folder, containing many scan results.
 
-:param rootPath: Folder to load all the steps from
-:param loadKymoData: Whether to load kymographs. Off by default as they're slow to load.
-"""
 def loadHybrid(rootPath, loadKymoData=False, convertXYZtoPx=False, getPlanarXYZFromVolume=False, normalizeXYZ=False):
+    """
+    Loads an entire hybrid experiment from a folder, containing many scan results.
+
+    Parameters
+    ----------
+
+    rootPath : string
+        Folder to load all the steps from.
+    loadKymoData : bool, optional
+        Flag indicating whether to load kymographs. Default is `False`.
+    convertXYZtoPx : bool, optional
+        Flag indicating if XYZ should be converted to pixels. Default is `False`.
+    getPlanarXYZFromVolume : bool, optional
+        Flag indicating if planar XYZ should be obtained from volume. Default is `False`.
+    normalizeXYZ : bool, optional
+        Flag indicating if XYZ should be normalized. Default is `False`.
+
+    Returns
+    ----------
+    hybridData : dict
+        Dictionary containing data for the entire hybrid experiment.
+    
+    """
+    
     MAX_STEP_COUNT = 100 # Assume all experiments have fewer steps than this.
     stepData = {}
     

@@ -134,6 +134,42 @@ def _plotStimOnto(ax, stim, hz, xLim, hybridStimColours=False, isDataPlot=False,
 def plotIntensity(data, hz, branches=None, colors=None, stim=None, title=None, 
     overlayStim=False, savePath=None, hybridStimColours=False, forceStimWidth=None, 
     **kwargs):
+    """
+    Plots intensity data with optional branches and stimulus.
+
+    Parameters
+    ----------
+    data : array
+        Data to be plotted.
+    hz : int
+        Sampling rate in Hz.
+    branches : array, optional
+        Array of branch data. Default is `None`.
+    colors : array, optional
+        Colors for the branches. Default is `None`.
+    stim : array, optional
+        Array of stimulus data. Default is `None`.
+    title : str, optional
+        Title for the plot. Default is `None`.
+    overlayStim : bool, optional
+        Flag to overlay stimulus data. Default is `False`.
+    savePath : str, optional
+        Path to save the plot. Default is `None`.
+    hybridStimColours : bool, optional
+        Flag for hybrid stimulus colors. Default is `False`.
+    forceStimWidth : int, optional
+        Force width for the stimulus. Default is `None`.
+    **kwargs : Additional keyword arguments for customization.
+
+    Returns
+    -------
+    xAx : object
+        x-axis object.
+    yAx : object
+        y-axis object.
+    """
+
+
     with plt.style.context(('seaborn-dark-palette')):
         fig, aBranches, aData, aStim, aBlank = None, None, None, None, None
         xAx, yAx = None, None
@@ -208,6 +244,53 @@ def plotIntensity(data, hz, branches=None, colors=None, stim=None, title=None,
 def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title=None, yTitle='DF/F0',
         split=True, limitSec=None, overlayStim=True, savePath=None, hybridStimColours=True, 
         yTickScale=1, yTickPct=True, yPad=.05):
+    """
+    Plots line data with optional branches and stimulus.
+
+    Parameters
+    ----------
+    data : array
+        Data to be plotted.
+    hz : int
+        Sampling rate in Hz.
+    branches : array, optional
+        Array of branch data. Default is `None`.
+    stim : array, optional
+        Array of stimulus data. Default is `None`.
+    labels : list, optional
+        Labels for the lines. Default is `None`.
+    colors : array, optional
+        Colors for the lines. Default is `None`.
+    title : str, optional
+        Title for the plot. Default is `None`.
+    yTitle : str, optional
+        Title for the y-axis. Default is `'DF/F0'`.
+    split : bool, optional
+        Flag to split the lines. Default is `True`.
+    limitSec : tuple, optional
+        Time limits for the plot in seconds. Default is `None`.
+    overlayStim : bool, optional
+        Flag to overlay stimulus data. Default is `True`.
+    savePath : str, optional
+        Path to save the plot. Default is `None`.
+    hybridStimColours : bool, optional
+        Flag for hybrid stimulus colors. Default is `True`.
+    yTickScale : int, optional
+        Scale for the y-axis ticks. Default is `1`.
+    yTickPct : bool, optional
+        Flag to format y-axis ticks as percentages. Default is `True`.
+    yPad : float, optional
+        Padding for the y-axis. Default is `.05`.
+
+    Returns
+    -------
+    xAx : object
+        x-axis object.
+    yAx : object
+        y-axis object.
+    """
+
+
     with plt.style.context(('seaborn-dark-palette')):        
         fig, aData, aStim = None, None, None
         xAx, yAx = None, None
@@ -271,6 +354,36 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
 
 
 def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None, title=None, secBefore=0, secAfter=3, savePath=None, **kwargs):
+    """
+    Plots average post-stimulus intensity.
+
+    Parameters
+    ----------
+    data : array
+        Data to be plotted.
+    hz : int
+        Sampling rate in Hz.
+    stimOffIdx : int
+        Index of stimulus off.
+    stimOnIdx : int, optional
+        Index of stimulus on. Default is `None`.
+    branches : array, optional
+        Array of branch data. Default is `None`.
+    title : str, optional
+        Title for the plot. Default is `None`.
+    secBefore : int, optional
+        Seconds before the stimulus. Default is `0`.
+    secAfter : int, optional
+        Seconds after the stimulus. Default is `3`.
+    savePath : str, optional
+        Path to save the plot. Default is `None`.
+    **kwargs : Additional keyword arguments for customization.
+
+    Returns
+    -------
+    None
+    """
+    
     with plt.style.context(('seaborn-dark-palette')):   
         fig, aBranchesOff, aBranchesOn, aDataOff, aDataOn = None, None, None, None, None
         
@@ -339,6 +452,30 @@ def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None,
             fig.savefig(savePath)
             
 def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace=None, savePath=None):
+    """
+    Plots average post-stimulus transient parameters.
+
+    Parameters
+    ----------
+    dfof : array
+        Data to be plotted.
+    hz : int
+        Sampling rate in Hz.
+    stimOffsets : array
+        Array of stimulus offsets.
+    secAfter : int
+        Seconds after the stimulus.
+    vizTrace : int, optional
+        Index of trace to visualize. Default is `None`.
+    savePath : str, optional
+        Path to save the plot. Default is `None`.
+
+    Returns
+    -------
+    ax : object
+        Axis object.
+    """
+    
     windowSz = secAfter * hz
     if vizTrace is not None:
         t = "df/f0 for trace %d" % vizTrace
@@ -382,7 +519,45 @@ def plotPlanarStructure(
     flipY=False, scale=1, savePath=None, 
     lineAlpha=0.8, flatten='Z', pixelMeters=None, 
     palette='seaborn-dark-palette', bgColor='black'):
-    
+    """
+    Plots a planar structure of the tree.
+
+    Parameters
+    ----------
+    tree : dict
+        Dictionary representing the tree structure.
+    rootID : int
+        ID of the root node.
+    nodeXYZ : array
+        Array of node locations (XYZ coordinates).
+    branchIDs : array, optional
+        Array of branch IDs. Default is `None`.
+    colors : array, optional
+        Colors for the branches. Default is `None`.
+    title : str, optional
+        Title for the plot. Default is `None`.
+    flipY : bool, optional
+        Flag to flip the y-axis. Default is `False`.
+    scale : float, optional
+        Scale factor for the plot. Default is `1`.
+    savePath : str, optional
+        Path to save the plot. Default is `None`.
+    lineAlpha : float, optional
+        Alpha value for the lines. Default is `0.8`.
+    flatten : str, optional
+        Axis to flatten. Default is `'Z'`.
+    pixelMeters : float, optional
+        Pixel to meter conversion factor. Default is `None`.
+    palette : str, optional
+        Color palette for the plot. Default is `'seaborn-dark-palette'`.
+    bgColor : str, optional
+        Background color for the plot. Default is `'black'`.
+
+    Returns
+    -------
+    ax : object
+        Axis object.
+    """
     # Default to flatten Z
     idxA, idxB = 0, 1 # X, Y
     scaleA, scaleB = scale, scale * (-1 if flipY else 1)
@@ -450,6 +625,25 @@ def plotPlanarStructure(
 
 # Scatter plot of all samples from traces from a filopodia tip vs. filopodia base.
 def plotBaseTipScatter(baseTrace, tipTrace, title=None, **kwargs):
+    """
+    Scatter plot of all samples from traces from a filopodia tip vs. filopodia base.
+
+    Parameters
+    ----------
+    baseTrace : array
+        Base trace data.
+    tipTrace : array
+        Tip trace data.
+    title : str, optional
+        Title for the plot. Default is `None`.
+    **kwargs : Additional keyword arguments for customization.
+
+    Returns
+    -------
+    ax : object
+        Axis object.
+    """
+
     with plt.style.context(('seaborn-dark-palette')):   
         fig, (ax) = plt.subplots(1, 1)
         if title is not None:
@@ -478,6 +672,42 @@ def _buildStimAlpha(n, stim):
     return stimAlpha
 
 def planarAnimation(tree, rootID, nodeXYZ, traceData, hz, flipY=False, stim=None, stimXY=(0,0), radius=0.005, savePath=None, scale=1, flatten='Z'):
+    """
+    Creates an animation of the planar structure with trace data.
+
+    Parameters
+    ----------
+    tree : dict
+        Dictionary representing the tree structure.
+    rootID : int
+        ID of the root node.
+    nodeXYZ : array
+        Array of node locations (XYZ coordinates).
+    traceData : array
+        Array of trace data.
+    hz : int
+        Sampling rate in Hz.
+    flipY : bool, optional
+        Flag to flip the y-axis. Default is `False`.
+    stim : array, optional
+        Array of stimulus data. Default is `None`.
+    stimXY : tuple, optional
+        Stimulus position in the plot. Default is `(0,0)`.
+    radius : float, optional
+        Radius of the nodes. Default is `0.005`.
+    savePath : str, optional
+        Path to save the animation. Default is `None`.
+    scale : float, optional
+        Scale factor for the plot. Default is `1`.
+    flatten : str, optional
+        Axis to flatten. Default is `'Z'`.
+
+    Returns
+    -------
+    anim : object
+        Animation object.
+    """
+    
     scales = np.array([scale, scale * (-1 if flipY else 1)])
     stimAlpha = _buildStimAlpha(traceData.shape[1], stim)
 
@@ -581,6 +811,30 @@ def _genLines(nodes, nodeAt, scale, flipY, flatten='Z'):
 # Shows raw intensity across the 11 (or whatever) pixel line scanned around the POI,
 # used to check whether the POI drifted away from the sensed location.
 def kymograph(kymoData, hz, smooth=False, title=None, widthInches=10, heightInches=60):
+    """
+    Shows raw intensity across the pixel line scanned around the POI to check for drift.
+
+    Parameters
+    ----------
+    kymoData : array
+        Kymograph data.
+    hz : int
+        Sampling rate in Hz.
+    smooth : bool, optional
+        Flag to smooth the data. Default is `False`.
+    title : str, optional
+        Title for the plot. Default is `None`.
+    widthInches : int, optional
+        Width of the plot in inches. Default is `10`.
+    heightInches : int, optional
+        Height of the plot in inches. Default is `60`.
+
+    Returns
+    -------
+    ax : object
+        Axis object.
+    """
+    
     # Optionally smooth with neighbours, to give a less noisy sense of drift
     if smooth:
         kymoData = np.copy(kymoData)
@@ -612,6 +866,30 @@ def printTree(nodeAt, nodes, indent=''):
         printTree(child['id'], nodes, indent + ' ')
 
 def scrollingAnimation(data, hz, branches, stim, title, savePath):
+    """
+    Creates a scrolling animation of the data.
+
+    Parameters
+    ----------
+    data : array
+        Data to be animated.
+    hz : int
+        Sampling rate in Hz.
+    branches : array
+        Array of branch data.
+    stim : array
+        Array of stimulus data.
+    title : str
+        Title for the animation.
+    savePath : str
+        Path to save the animation.
+
+    Returns
+    -------
+    anim : object
+        Animation object.
+    """
+
     fig, ((aBranches, aData), (aBlank, aStim)) = plt.subplots(2, 2, figsize=(8,10), gridspec_kw = {'height_ratios':[8, 1], 'width_ratios':[1, 20]})
     fig.suptitle(title)
     fig.subplots_adjust(left=PAD/2, right=(1 - PAD/2), top=(1 - PAD), bottom=PAD)

@@ -1,6 +1,42 @@
 import numpy as np
 
 def treePostProcessing(nodeIDs, nodeXYZ, traceIDs, data, rootID, tree):
+    """
+    Processes the tree structure, adding locations, calculating branches, and reordering nodes by branch.
+
+    Parameters
+    ----------
+    nodeIDs : array
+        List of node IDs.
+    nodeXYZ : array
+        Array of node locations (XYZ coordinates).
+    traceIDs : array
+        List of trace IDs.
+    data : array
+        Data array containing raw traces.
+    rootID : int
+        ID of the root node.
+    tree : dict
+        Dictionary representing the tree structure.
+
+    Returns
+    -------
+    nodeIDs : array
+        Processed list of node IDs.
+    nodeXYZ : array
+        Processed array of node locations (XYZ coordinates).
+    finalTraceIDs : array
+        Processed list of trace IDs.
+    finalTraceBranches : array
+        List of trace branches.
+    data : array
+        Processed data array containing raw traces.
+    branchIDs : array
+        List of branch IDs.
+    branchIDMap : dict
+        Dictionary mapping node IDs to branch IDs.
+    """
+
     # 1) Add location to all points that have it:
     if nodeXYZ is not None:
         for i in range(len(nodeIDs)):
@@ -32,6 +68,23 @@ def treePostProcessing(nodeIDs, nodeXYZ, traceIDs, data, rootID, tree):
     return nodeIDs, nodeXYZ, finalTraceIDs, finalTraceBranches, data, branchIDs, branchIDMap
 
 def buildBranchIDMap(nodeID, nodes, splitAtBranch=False):
+    """
+    Builds a map of branch IDs for the given tree structure.
+
+    Parameters
+    ----------
+    nodeID : int
+        ID of the starting node.
+    nodes : dict
+        Dictionary representing the tree structure.
+    splitAtBranch : bool, optional
+        Flag indicating whether to split at branches. Default is `False`.
+
+    Returns
+    -------
+    branchIDMap : dict
+        Dictionary mapping node IDs to branch IDs.
+    """
     result = {}
     _fillBranchIDMap(nodeID, nodes, 0, result, splitAtBranch)
     return result
@@ -60,6 +113,27 @@ def _treeSize(nodeID, nodes):
 
 # Return dictionary mapping: node ID -> (branchID if filo tip, -branchID if filo base, or 0 if neither)
 def treeToFiloTipAndBase(nodeIDs, nodeXYZ, tree, rootID, filoDist=5.0):
+    """
+    Maps nodes to filopodia tips and bases based on the specified distance.
+
+    Parameters
+    ----------
+    nodeIDs : array
+        List of node IDs.
+    nodeXYZ : array
+        Array of node locations (XYZ coordinates).
+    tree : dict
+        Dictionary representing the tree structure.
+    rootID : int
+        ID of the root node.
+    filoDist : float, optional
+        Distance threshold for identifying filopodia tips and bases. Default is `5.0`.
+
+    Returns
+    -------
+    mapping : dict
+        Dictionary mapping node IDs to branch IDs, indicating filopodia tips and bases.
+    """
     mapping = {}
     nextBranchID = [0]
     

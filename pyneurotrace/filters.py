@@ -3,12 +3,32 @@ import numpy as np
 
 from .nndFilter import nonNegativeDeconvolution as NND
 
-"""
-Podgorski, K., & Haas, K. (2013).
-Fast non‐negative temporal deconvolution for laser scanning microscopy.
-Journal of biophotonics, 6(2), 153-162.
-"""
+
 def nndSmooth(data, hz, tau, iterFunc=None):
+    """
+    Performs fast non-negative temporal deconvolution for laser scanning microscopy.
+
+    Podgorski, K., & Haas, K. (2013).
+    Fast non‐negative temporal deconvolution for laser scanning microscopy.
+    Journal of biophotonics, 6(2), 153-162.
+
+    Parameters
+    ----------
+    data : array
+        Data array to be smoothed.
+    hz : int
+        Sampling rate in Hz.
+    tau : float
+        Time constant for the exponential decay.
+    iterFunc : function, optional
+        Optional iteration function. Default is `None`.
+
+    Returns
+    -------
+    smoothed_data : array
+        Smoothed data array.
+    """
+
     tauSamples = tau * hz
 
     # This is the transient shape we're deconvolving against:
@@ -36,12 +56,28 @@ def nndSmooth(data, hz, tau, iterFunc=None):
     return _forEachTimeseries(data, _singleRowNND, iterFunc)
 
 
-"""
-Okada, M., Ishikawa, T., & Ikegaya, Y. (2016).
-A computationally efficient filter for reducing shot noise in low S/N data.
-PloS one, 11(6), e0157595.
-"""
+
 def okada(data, iterFunc=None):
+    """
+    A computationally efficient filter for reducing shot noise in low S/N data.
+
+    Okada, M., Ishikawa, T., & Ikegaya, Y. (2016).
+    A computationally efficient filter for reducing shot noise in low S/N data.
+    PloS one, 11(6), e0157595.
+
+    Parameters
+    ----------
+    data : array
+        Data array to be filtered.
+    iterFunc : function, optional
+        Optional iteration function. Default is `None`.
+
+    Returns
+    -------
+    filtered_data : array
+        Filtered data array.
+    """
+
     def _singleRowOkada(samples):
         x = np.copy(samples)
         for i in range(1, len(x) - 1):
@@ -50,12 +86,35 @@ def okada(data, iterFunc=None):
         return x
     return _forEachTimeseries(data, _singleRowOkada, iterFunc)
 
-"""
-Jia, H., Rochefort, N. L., Chen, X., & Konnerth, A. (2011).
-In vivo two-photon imaging of sensory-evoked dendritic calcium signals in cortical neurons.
-Nature protocols, 6(1), 28.
-"""
+
 def deltaFOverF0(data, hz, t0=0.2, t1=0.75, t2=3.0, iterFunc=None):
+    """
+    Calculates the change in fluorescence over baseline fluorescence. Optionally smoothed with an EWMA.
+    
+    Jia, H., Rochefort, N. L., Chen, X., & Konnerth, A. (2011).
+    In vivo two-photon imaging of sensory-evoked dendritic calcium signals in cortical neurons.
+    Nature protocols, 6(1), 28.
+    
+    Parameters
+    ----------
+    data : array
+        Data array to be analyzed.
+    hz : int
+        Sampling rate in Hz.
+    t0 : float, optional
+        Time constant for exponential moving average. Default is `0.2`.
+    t1 : float, optional
+        Time window for calculating the mean baseline. Default is `0.75`.
+    t2 : float, optional
+        Time window for calculating the minimum baseline. Default is `3.0`.
+    iterFunc : function, optional
+        Optional iteration function. Default is `None`.
+
+    Returns
+    -------
+    deltaF_over_F0 : array
+        Calculated change in fluorescence over baseline fluorescence.
+    """
     t0ratio = None if t0 is None else np.exp(-1 / (t0 * hz))
     t1samples, t2samples = round(t1 * hz), round(t2*hz)
 

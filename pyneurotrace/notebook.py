@@ -9,6 +9,24 @@ from tqdm import tqdm_notebook
 
 # Show a dialog selection box to the user so they can pick one file.
 def filePicker(prompt="Select file", extension="", defaultPath='.'):
+    """
+    Show a dialog selection box to the user to pick one file.
+
+    Parameters
+    ----------
+    prompt : str, optional
+        The prompt message for the dialog. Default is `"Select file"`.
+    extension : str, optional
+        File extension filter. Default is `""`.
+    defaultPath : str, optional
+        Default path to start the file picker. Default is `'.'`.
+
+    Returns
+    -------
+    fname : str
+        Path of the selected file.
+    """
+
     if os.path.isfile(defaultPath):
         defaultPath = os.path.dirname(defaultPath)
     app = QtWidgets.QApplication([])
@@ -17,6 +35,22 @@ def filePicker(prompt="Select file", extension="", defaultPath='.'):
     
 # Dialog for user to select path of *new* save file
 def newFilePicker(prompt="New file", defaultPath='.'):
+    """
+    Show a dialog for the user to select the path of a new save file.
+
+    Parameters
+    ----------
+    prompt : str, optional
+        The prompt message for the dialog. Default is `"New file"`.
+    defaultPath : str, optional
+        Default path to start the file picker. Default is `'.'`.
+
+    Returns
+    -------
+    fname : str
+        Path of the new save file.
+    """
+
     if os.path.isfile(defaultPath):
         defaultPath = os.path.dirname(defaultPath)
     app = QtWidgets.QApplication([])
@@ -25,6 +59,22 @@ def newFilePicker(prompt="New file", defaultPath='.'):
 
 # Show a folder selection dialog to the user and return the path.
 def folderPicker(prompt="Output Folder", defaultPath='.'):
+    """
+    Show a folder selection dialog to the user and return the path.
+
+    Parameters
+    ----------
+    prompt : str, optional
+        The prompt message for the dialog. Default is `"Output Folder"`.
+    defaultPath : str, optional
+        Default path to start the folder picker. Default is `'.'`.
+
+    Returns
+    -------
+    fname : str
+        Path of the selected folder.
+    """
+
     if os.path.isfile(defaultPath):
         defaultPath = os.path.dirname(defaultPath)
     app = QtWidgets.QApplication([])
@@ -34,6 +84,25 @@ def folderPicker(prompt="Output Folder", defaultPath='.'):
 # Display data in multiple tabs in the same output area.
 # Performed as a mapping, using dictionary/list and a custom map function.
 def showTabs(data, showOnTabFunc, titles=None, progressBar=False):
+    """
+    Display data in multiple tabs in the same output area.
+
+    Parameters
+    ----------
+    data : list or dict
+        Data to be displayed in tabs.
+    showOnTabFunc : function
+        Function to display data on each tab.
+    titles : list, optional
+        List of titles for the tabs. Default is `None`.
+    progressBar : bool, optional
+        Flag to show a progress bar. Default is `False`.
+
+    Returns
+    -------
+    None
+        Displays data in tabs within the notebook.
+    """
     dataIsList = isinstance(data, list)
     
     progressBarFunc = tqdm_notebook if progressBar else (lambda x: x)
