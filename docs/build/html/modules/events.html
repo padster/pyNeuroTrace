@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events &mdash; pyneurotrace 0.95.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=79a6a0ef"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Files" href="files.html" />
+    <link rel="prev" title="Modules" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyneurotrace
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Modules</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Events</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyneurotrace.events.ewma"><code class="docutils literal notranslate"><span class="pre">ewma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyneurotrace.events.cusum"><code class="docutils literal notranslate"><span class="pre">cusum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyneurotrace.events.matchedFilter"><code class="docutils literal notranslate"><span class="pre">matchedFilter()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pyneurotrace.events.thresholdEvents"><code class="docutils literal notranslate"><span class="pre">thresholdEvents()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="files.html">Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="filters.html">Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="morphology.html">Morphology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebook.html">Notebook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viz.html">Visualization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyneurotrace</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Modules</a></li>
+      <li class="breadcrumb-item active">Events</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/modules/events.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="events">
+<h1>Events<a class="headerlink" href="#events" title="Link to this heading"></a></h1>
+<p>Documentation for the functions in the events module.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyneurotrace.events.ewma">
+<span class="sig-prename descclassname"><span class="pre">pyneurotrace.events.</span></span><span class="sig-name descname"><span class="pre">ewma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyneurotrace.events.ewma" title="Link to this definition"></a></dt>
+<dd><p>Performs smoothing on each row using the Exponentially Weighted Moving Average (EWMA) method.</p>
+<p>EWMA:  Exponentially Weighted Moving Average
+<a class="reference external" href="https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average">https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average</a>
+Performs smoothing on each row, given how strongly to weight new values (vs existing average)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – Data array to be smoothed.</p></li>
+<li><p><strong>weight</strong> (<em>float</em><em>, </em><em>optional</em>) – Weight for new values versus existing average. Default is 0.1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>smoothed_data</strong> – Smoothed data array.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyneurotrace.events.cusum">
+<span class="sig-prename descclassname"><span class="pre">pyneurotrace.events.</span></span><span class="sig-name descname"><span class="pre">cusum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyneurotrace.events.cusum" title="Link to this definition"></a></dt>
+<dd><p>Calculates the Cumulative Sum (CUSUM) of movement above the mean for each row in the data.</p>
+<p>CUSUM:  Cumulative sum of movement above the mean.
+<a class="reference external" href="https://en.wikipedia.org/wiki/CUSUM">https://en.wikipedia.org/wiki/CUSUM</a>
+Subtracts the rolling average from each point, then accumulates how far it is above a slack noise value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – Data array to be analyzed.</p></li>
+<li><p><strong>slack</strong> (<em>float</em><em>, </em><em>optional</em>) – Slack noise value. Default is 1.0.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cusum_data</strong> – CUSUM data array.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyneurotrace.events.matchedFilter">
+<span class="sig-prename descclassname"><span class="pre">pyneurotrace.events.</span></span><span class="sig-name descname"><span class="pre">matchedFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windowSize</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">riseRate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.028</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decayRate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.39</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyneurotrace.events.matchedFilter" title="Link to this definition"></a></dt>
+<dd><p>Performs a likelihood ratio test using a Matched Filter (MF) to see how well a previous window matches a desired signal over no signal.</p>
+<p>MF:  Matched Filter
+<a class="reference external" href="https://en.wikipedia.org/wiki/Matched_filter">https://en.wikipedia.org/wiki/Matched_filter</a>
+Performs a (log) likelihood ratio test, to see how well a previous window matches a desired signal over no signal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – Data array to be filtered.</p></li>
+<li><p><strong>hz</strong> (<em>int</em>) – Sampling rate in Hz.</p></li>
+<li><p><strong>windowSize</strong> (<em>int</em>) – Size of the window to match.</p></li>
+<li><p><strong>A</strong> (<em>float</em><em>, </em><em>optional</em>) – Amplitude of the desired signal. Default is 2.0.</p></li>
+<li><p><strong>riseRate</strong> (<em>float</em><em>, </em><em>optional</em>) – Rise rate of the desired signal. Default is 0.028.</p></li>
+<li><p><strong>decayRate</strong> (<em>float</em><em>, </em><em>optional</em>) – Decay rate of the desired signal. Default is 0.39.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>mf_data</strong> – Matched filter data array.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyneurotrace.events.thresholdEvents">
+<span class="sig-prename descclassname"><span class="pre">pyneurotrace.events.</span></span><span class="sig-name descname"><span class="pre">thresholdEvents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minBelowBefore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyneurotrace.events.thresholdEvents" title="Link to this definition"></a></dt>
+<dd><p>Turns an event detector into event yes/no indicators by applying a threshold and only keeping events that occur after a minimum number of non-event samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – Data array containing event detector outputs.</p></li>
+<li><p><strong>threshold</strong> (<em>float</em>) – Confidence threshold for events.</p></li>
+<li><p><strong>minBelowBefore</strong> (<em>int</em><em>, </em><em>optional</em>) – Minimum number of non-event samples before an event is considered. Default is 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>events</strong> – Array indicating detected events.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="files.html" class="btn btn-neutral float-right" title="Files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Peter Hogg, Patrick Coleman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
