@@ -57,6 +57,7 @@ def test_plotAveragePostStimTransientParams():
     file_name = "test_array.npy" 
     file_path = os.path.join(script_dir, file_name)
     data  = np.load(file_path)
+    
     hz = 10
     stimOffsets = np.array([2, 4, 6, 6, 8])
     secAfter = 3
