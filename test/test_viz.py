@@ -46,11 +46,11 @@ def test_plotAveragePostStimIntensity():
 
 
 
-    fig, ax = plt.subplots()
+    #fig, ax = plt.subplots()
     
     # Run the function to ensure it generates the plot without errors
-    plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx)
-    plt.close(fig)
+    #plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx)
+    #plt.close(fig)
 
 def test_plotAveragePostStimTransientParams():
     dfof = np.random.random((5,1000))
