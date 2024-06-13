@@ -5,12 +5,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyNeuroTrace"
-version = "0.9.7"
+version = "0.9.8"
 dependencies = [
-    "numpy",
-    "scipy",
-    "h5py",
-    "scikit-image",
+"ipython",
+"ipywidgets",
+"matplotlib",
+"matplotlib-scalebar",
+"numpy",
+"pytest",
+"PyQt5",
+"scipy",
+"tqdm"
 ]
 requires-python = ">=3.9"
 authors = [
