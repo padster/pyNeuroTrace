@@ -82,11 +82,24 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pyNeuroTrace
 </pre></div>
 </div>
-<p>If you wish to use optional GPU-accelerated modules, install pyNeuroTrace with this modification:</p>
+<p>GPU Supported functions use the Python Library Cupy. This library has the following requirements:
+* NVIDIA CUDA GPU with the Compute Capability 3.0 or larger.</p>
+<ul class="simple">
+<li><p>CUDA Toolkit: v11.2 / v11.3 / v11.4 / v11.5 / v11.6 / v11.7 / v11.8 / v12.0 / v12.1 / v12.2 / v12.3 / v12.4</p></li>
+</ul>
+<p>‘pyNeuroTrace’ can be installed with Cupy using pip:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pyNeuroTrace<span class="o">[</span>GPU<span class="o">]</span>
 </pre></div>
 </div>
-<p>Or ensure that <cite>Cupy</cite> is installed in your Python environment and that you have a CUDA-enabled graphics card.</p>
+<p>If Cupy fails to build from the wheel using this command try installing Cupy first using a wheel that matches your CUDA Toolkit version ie:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>cupy-cuda12x
+</pre></div>
+</div>
+<p>Followed by this command to install pyNeuroTrace</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pyNeuroTrace
+</pre></div>
+</div>
+<p>For more information in on installing Cupy see the installation documentation [HERE](<a class="reference external" href="https://docs.cupy.dev/en/stable/install.html">https://docs.cupy.dev/en/stable/install.html</a>).</p>
 </section>
 
 
