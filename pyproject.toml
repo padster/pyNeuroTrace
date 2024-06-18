@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyNeuroTrace"
-version = "0.9.83"
+version = "0.9.84"
 dependencies = [
 "ipython",
 "ipywidgets",

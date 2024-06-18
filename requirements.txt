@@ -2,7 +2,7 @@ ipython
 ipywidgets
 matplotlib
 matplotlib-scalebar
-numpy==1.26.4
+numpy==1.24.4
 pytest
 PyQt5
 scipy
