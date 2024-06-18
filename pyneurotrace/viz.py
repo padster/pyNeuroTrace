@@ -170,7 +170,7 @@ def plotIntensity(data, hz, branches=None, colors=None, stim=None, title=None,
     """
 
 
-    with plt.style.context(('seaborn-dark-palette')):
+    with plt.style.context(('seaborn-v0_8-dark-palette')):
         fig, aBranches, aData, aStim, aBlank = None, None, None, None, None
         xAx, yAx = None, None
         
@@ -291,7 +291,7 @@ def plotLine(data, hz, branches=None, stim=None, labels=None, colors=None, title
     """
 
 
-    with plt.style.context(('seaborn-dark-palette')):        
+    with plt.style.context(('seaborn-v0_8-dark-palette')):        
         fig, aData, aStim = None, None, None
         xAx, yAx = None, None
         
@@ -384,7 +384,7 @@ def plotAveragePostStimIntensity(data, hz, stimOffIdx, stimOnIdx, branches=None,
     None
     """
     
-    with plt.style.context(('seaborn-dark-palette')):   
+    with plt.style.context(('seaborn-v0_8-dark-palette')):   
         fig, aBranchesOff, aBranchesOn, aDataOff, aDataOn = None, None, None, None, None
         
         drawOn = (stimOnIdx is not None)
@@ -497,7 +497,7 @@ def plotAveragePostStimTransientParams(dfof, hz, stimOffsets, secAfter, vizTrace
     allP = np.array(allParams)
     allA, allT0, allTA, allTB = allP[:, 0], allP[:, 1] / hz, allP[:, 2] / hz, allP[:, 3] / hz
 
-    with plt.style.context(('seaborn-dark-palette')):   
+    with plt.style.context(('seaborn-v0_8-dark-palette')):   
         fig, ax = plt.subplots(2, 2, tight_layout=True)
         ax[0][0].hist(allA)
         ax[0][1].hist(allT0)
@@ -518,7 +518,7 @@ def plotPlanarStructure(
     branchIDs=None, colors=None, title=None, 
     flipY=False, scale=1, savePath=None, 
     lineAlpha=0.8, flatten='Z', pixelMeters=None, 
-    palette='seaborn-dark-palette', bgColor='black'):
+    palette='seaborn-v0_8-dark-palette', bgColor='black'):
     """
     Plots a planar structure of the tree.
 
@@ -549,7 +549,7 @@ def plotPlanarStructure(
     pixelMeters : float, optional
         Pixel to meter conversion factor. Default is `None`.
     palette : str, optional
-        Color palette for the plot. Default is `'seaborn-dark-palette'`.
+        Color palette for the plot. Default is `'seaborn-v0_8-dark-palette'`.
     bgColor : str, optional
         Background color for the plot. Default is `'black'`.
 
@@ -644,7 +644,7 @@ def plotBaseTipScatter(baseTrace, tipTrace, title=None, **kwargs):
         Axis object.
     """
 
-    with plt.style.context(('seaborn-dark-palette')):   
+    with plt.style.context(('seaborn-v0_8-dark-palette')):   
         fig, (ax) = plt.subplots(1, 1)
         if title is not None:
             ax.set_title(title)
@@ -842,7 +842,7 @@ def kymograph(kymoData, hz, smooth=False, title=None, widthInches=10, heightInch
         kymoData = (kymoData[:, 2:] + kymoData[:, 1:-1] + kymoData[:, :-2]) / 3
         kymoData = (kymoData[2:, :] + kymoData[1:-1, :] + kymoData[:-2, :]) / 3
 
-    with plt.style.context(('seaborn-dark-palette')):   
+    with plt.style.context(('seaborn-v0_8-dark-palette')):   
         fig, (ax) = plt.subplots(1, 1)
         if title is not None:
             ax.set_title(title)
