@@ -17,6 +17,7 @@ dependencies = [
 "scipy",
 "tqdm"
 ]
+
 requires-python = ">=3.9"
 authors = [
     { name="Pat Coleman", email="padsterpat@gmail.com" },
