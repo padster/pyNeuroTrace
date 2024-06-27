@@ -4,7 +4,7 @@
 
 A number of options for visualising trace data are provided, including:
 
-![Intensity plot](https://padster.github.io/pyNeuroTrace/img/pyntIntensity.png)
+![Intensity plot](https://github.com/padster/pyNeuroTrace/blob/master/docs/img/pyntIntensity.png)
 
 `plotIntensity(data, hz, branches, stim, title)`
 > Generates a 2D intensity image, with rows being nodes and columns being samples of data. The intensity is normalised, ranging from black (lowest), to red, to yellow, and finally white (highest). Options include:
@@ -19,7 +19,7 @@ where each row is a stimulus, and the two entries are the start and end sample.
 
 &nbsp;
 
-![Line plot](https://padster.github.io/pyNeuroTrace/img/pyntLines.png)
+![Line plot](https://github.com/padster/pyNeuroTrace/blob/master/docs/img/pyntLines.png)
 
 `plotLine(data, hz, branches, stim, title, split)`
 > Generates line graphs for the provided traces. This accepts similar parameters to the intensity graph, as well as:
@@ -27,7 +27,7 @@ where each row is a stimulus, and the two entries are the start and end sample.
 
 &nbsp;
 
-![Planar structure plot](https://padster.github.io/pyNeuroTrace/img/pyntPlanar.png)
+![Planar structure plot](https://github.com/padster/pyNeuroTrace/blob/master/docs/img/pyntPlanar.png)
 
 `plotPlanarStructure(tree, rootID, xyz)`
 > Plots a pyNeuroTrace tree on a 2D plane, showing node positions, optional colours, and parent-child relationships. Options include:
