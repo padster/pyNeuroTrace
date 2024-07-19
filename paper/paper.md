@@ -13,6 +13,7 @@ authors:
     affiliation: 1
 
   - name: Peter William Hogg
+    corresponding: true 
     orcid: 0000-0003-2176-4977
     equal-contrib: true 
     affiliation: 1
@@ -70,7 +71,7 @@ $$
  x_{t} \leftarrow x_{t} + \frac{x_{t-1} + x_{t+1} - 2x_{t}}{2(1 + e^{-\alpha (x_{t} - x_{t-1})(x_{t} - x_{t+1})})}
 $$
 
-In this equation, $x_{t}$ is the value in the neural activity trace at time $t$. The value for $\alpha$, which is a coefficient, should be selected so that the product of $x_{t} - x_{t}$ and $x_{t} - x_{t+1}$ causes a sufficiently steep sigmoid curve which functions a binary filter in the equation. This function is equivalent to the following conditional states from Okada *et al.*:
+In this equation, $x_{t}$ is the value in the neural activity trace at time $t$. The value for $\alpha$, which is a coefficient, should be selected so that the product of $x_{t} - x_{t-1}$ and $x_{t} - x_{t+1}$ causes a sufficiently steep sigmoid curve which functions a binary filter in the equation. This function is equivalent to the following conditional states from Okada *et al.*:
 
 $$
  \text{If } (x_{t} - x_{t-1})(x_{t} - x_{t+1}) \leq 0 \
@@ -104,16 +105,16 @@ For individual or small numbers of activity traces, `pyNeuroTrace` has a line pl
 
 ![Six traces from neuron cell bodies imaged *in vivo* with a SLAP2 microscope. Tectal cells were bulk loaded with CAL-590-AM, a calcium senstive dye. Plotting individual traces better highlights the event shape \label{fig:traces}](docs/img/pynt_lineplot_cal590.png)
 
-Additionally, if a record of stimulus or trigger times is provided `pyNeuroTrace` can plot the average evoked response in a recording. \autoref{fig:traces} shows the average evoked response to a full-field OFF and ON stimuli from the data in \autoref{fig:heatmap}. This graph shows the evoked synaptic weights differ for the different visual stimuli presented to the animal. 
+Additionally, if a record of stimulus or trigger times is provided `pyNeuroTrace` can plot the average evoked response in a recording. \autoref{fig:AvgResponse} shows the average evoked response to a full-field OFF and ON stimuli from the data in \autoref{fig:heatmap}. This graph shows the evoked synaptic weights differ for the different visual stimuli presented to the animal. 
 
-![Average stimulus-locked responses from the same *in vivo* imaging experiment of the dendritic branch in {fig:heatmap} \label{fig:AvgResponse}. The response for each branch node is plotted for two visual stimuli, full field OFF and ON](docs/img/pyn_avg_response_on_off_9.png)
+![Average stimulus-locked responses from the same *in vivo* imaging experiment of the dendritic branch in \autoref{fig:heatmap} \label{fig:AvgResponse}. The response for each branch node is plotted for two visual stimuli, full field OFF and ON](docs/img/pyn_avg_response_on_off_9.png)
 
 # GPU Acceleration
 Several of the filters in `pyNeuroTrace` have been rewritten to be almost entirely vectorized in their calculations. The benefit is more noticeable when comparing the difference in performance while using large data sets, such as those generated using a longer time series or faster acquisition rates. These vectorized implementations gain further speed by being executed on a GPU using the Cupy Python library [@cupy_learningsys2017]. The GPU-accelerated filters can be imported from the `pyneurotrace.gpu.filters` module, and a CUDA-compatible graphics card is required for their execution. This functionality is becoming increasingly crucial as acquisition rates increase for kilohertz imaging of activity [@Zhang2019], which can generate arrays of hundreds of thousands of data points in just a few minutes of recording. \autoref{fig:CPUvsGPU} shows the difference in calculating arrays of various sizes using either the CPU or vectorized GPU-based approach of the $\Delta F/F$ function. The CPU used in these calculations was an Intel i5-9600K with six 4.600GHz cores; the GPU was an NVIDIA GeForce RTX 4070 with CUDA Version 12.3. When compared, the GPU calculation was on average in the order of 100 times faster on time series up to 100,000 points in size.
 
 ![Comparison between $\Delta F/F$ with EWMA calculations for different array sizes using either the CPU (blue) or GPU (orange). \label{fig:CPUvsGPU}](docs/img/dffCalculationCPUvsGPU_log.png)
 
-To vectorize the functions several where modified. For example the EMWA used to smooth the $\Delta F/F$ signal as described by Jia *et al.* was changed to an approximation using convolution with an exponential function. The kernel used to perform this is defined as:
+To vectorize the functions several were modified. For example the EMWA used to smooth the $\Delta F/F$ signal as described by Jia *et al.* was changed to an approximation using convolution with an exponential function. The kernel used to perform this is defined as:
 
 $$w[i] = \begin{cases} 
 \alpha \cdot (1 - \alpha)^i & \text{for } i = 0, 1, 2, \dots, N-1 \\

@@ -2,20 +2,32 @@ import math
 import numpy as np
 
 
-"""
-Performs fast nonnegative deconvolution on pmt signal to solve for minimum MSE photon rate
-   trace  :   The data to be deconvolved
-   tau    :   The time constant of the PMT, in data samples
-   return :   estimated photon rate
-
-A matlab version is also available on request.
-
-For details on how this works, see:
-  Podgorski, K., & Haas, K. (2013).
-  Fast non‐negative temporal deconvolution for laser scanning microscopy.
-  Journal of biophotonics, 6(2), 153-162.
-"""
 def nonNegativeDeconvolution(trace, tau):
+    """
+    Performs non-negative deconvolution on a trace to estimate the underlying counts.
+
+    This method is useful in signal processing, particularly for inferring neural activity from calcium imaging data.
+    The algorithm ensures that the estimated counts are non-negative, providing a more accurate representation of the
+    underlying signal.
+
+    For details on how this works, see:
+    Podgorski, K., & Haas, K. (2013).
+    Fast non‐negative temporal deconvolution for laser scanning microscopy.
+    Journal of biophotonics, 6(2), 153-162.
+
+    Parameters
+    ----------
+    trace : array
+        Input data array representing the observed trace.
+    tau : float
+        Time constant for the exponential decay, influencing the shape of the convolution kernel.
+
+    Returns
+    -------
+    counts : array
+        Array of estimated counts, representing the deconvolved signal.
+    """
+
     T = len(trace)
     counts = np.zeros(T)
     counts[-1] = trace[-1]

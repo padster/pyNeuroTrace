@@ -4,13 +4,27 @@ from cupyx.scipy.ndimage import minimum_filter1d, uniform_filter1d
 
 
 
-
-"""
-Okada, M., Ishikawa, T., & Ikegaya, Y. (2016).
-A computationally efficient filter for reducing shot noise in low S/N data.
-PloS one, 11(6), e0157595.
-"""
 def okada(data, iterFunc=None):
+    """
+    A computationally efficient filter for reducing shot noise in low S/N data.
+
+    Okada, M., Ishikawa, T., & Ikegaya, Y. (2016).
+    A computationally efficient filter for reducing shot noise in low S/N data.
+    PloS one, 11(6), e0157595.
+
+    Parameters
+    ----------
+    data : cupy array
+        Data array to be filtered.
+    iterFunc : function, optional
+        Optional iteration function. Default is `None`.
+
+    Returns
+    -------
+    filtered_data : cupy array
+        Filtered data array.
+    """
+
     def _singleRowOkada(samples):
         x = cu.copy(samples)
 
@@ -26,12 +40,36 @@ def okada(data, iterFunc=None):
         return x
     return _forEachTimeseries(data, _singleRowOkada, iterFunc)
 
-"""
-Jia, H., Rochefort, N. L., Chen, X., & Konnerth, A. (2011).
-In vivo two-photon imaging of sensory-evoked dendritic calcium signals in cortical neurons.
-Nature protocols, 6(1), 28.
-"""
-def deltaFOverF0(data, hz, t0=0.2, t1=0.75, t2=3.0, iterFunc=None): 
+
+def deltaFOverF0(data, hz, t0=0.2, t1=0.75, t2=3.0, iterFunc=None):
+    """
+    Calculates the change in fluorescence over baseline fluorescence. Optionally smoothed with an EWMA.
+    
+    Jia, H., Rochefort, N. L., Chen, X., & Konnerth, A. (2011).
+    In vivo two-photon imaging of sensory-evoked dendritic calcium signals in cortical neurons.
+    Nature protocols, 6(1), 28.
+    
+    Parameters
+    ----------
+    data : cupy array
+        Data array to be analyzed.
+    hz : int
+        Sampling rate in Hz.
+    t0 : float, optional
+        Time constant for exponential moving average. Default is `0.2`.
+    t1 : float, optional
+        Time window for calculating the mean baseline. Default is `0.75`.
+    t2 : float, optional
+        Time window for calculating the minimum baseline. Default is `3.0`.
+    iterFunc : function, optional
+        Optional iteration function. Default is `None`.
+
+    Returns
+    -------
+    deltaF_over_F0 : cupy array
+        Calculated change in fluorescence over baseline fluorescence.
+    """
+
     t1samples, t2samples = round(t1 * hz), round(t2*hz)
     alpha = None if t0 is None else 1 - cu.exp(-1 / (t0 * hz))
 

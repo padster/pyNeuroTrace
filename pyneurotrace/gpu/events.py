@@ -1,11 +1,28 @@
 import cupy as cu
 
-"""
-EWMA:  Exponentially Weighted Moving Average
-https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
-Performs smoothing on each row, given how strongly to weight new values (vs existing average)
-"""
+
 def ewma(data, weight=0.1):
+    """
+    Performs smoothing on each row using a vectorized approximation of the Exponentially Weighted Moving Average (EWMA) method.
+    This implementation allows for the EWMA to be calculated on GPUs. 
+
+    EWMA:  Exponentially Weighted Moving Average
+    https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average
+    Performs smoothing on each row, given how strongly to weight new values (vs existing average)
+
+    Parameters
+    ----------
+    data : array
+        Data array to be smoothed.
+    weight : float, optional
+        Weight for new values versus existing average. Default is 0.1.
+
+    Returns
+    -------
+    smoothed_data : array
+        Smoothed data array.
+    """
+
     def _singleRowEWMA(data):
         # Vectorized approximation of EWMA function
         # Generate weights    
@@ -34,12 +51,27 @@ def _runningMean(trace):
     cumsum = cu.cumsum(trace)
     return cumsum/index
 
-"""
-CUSUM:  Cumulative sum of movement above the mean.
-https://en.wikipedia.org/wiki/CUSUM
-Subtracts the rolling average from each point, then accumulates how far it is above a slack noise value.
-"""
+
 def cusum(data, slack=1.0):
+    """
+    Calculates the Cumulative Sum (CUSUM) of movement above the mean for each row in the data.
+
+    CUSUM:  Cumulative sum of movement above the mean.
+    https://en.wikipedia.org/wiki/CUSUM
+    Subtracts the rolling average from each point, then accumulates how far it is above a slack noise value.
+
+    Parameters
+    ----------
+    data : array
+        Data array to be analyzed.
+    slack : float, optional
+        Slack noise value. Default is 1.0.
+
+    Returns
+    ----------
+    cusum_data : array
+        CUSUM data array.
+    """
     def _singleRowCusum(trace):
         mean = _runningMean(trace)
         
@@ -49,11 +81,25 @@ def cusum(data, slack=1.0):
     return _forEachTimeseries(data, _singleRowCusum)
     
 
-"""
-Given an event detector, turn into event yes/no indicators by cutting at a confidence threshold
-and only keeping events that happened after a minimum number of non-event samples.
-"""
+
 def thresholdEvents(data, threshold, minBelowBefore=1):
+    """
+    Turns an event detector into event yes/no indicators by applying a threshold and only keeping events that occur after a minimum number of non-event samples.
+
+    Parameters
+    ----------
+    data : array
+        Data array containing event detector outputs.
+    threshold : float
+        Confidence threshold for events.
+    minBelowBefore : int, optional
+        Minimum number of non-event samples before an event is considered. Default is 1.
+
+    Returns
+    ----------
+    events : array
+       Array indicating detected events.
+    """
     def _singleRowThreshold(trace):
         n = trace.size
         below_threshold = trace < threshold
