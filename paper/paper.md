@@ -31,7 +31,7 @@ authors:
 affiliations:
   - name: 'Department of Cellular and Physiological Sciences, Centre for Brain Health, School of Biomedical Engineering, University of British Columbia, Vancouver, Canada'
     index: 1
-date: '08 May 2024'
+date: '02 August 2024'
 bibliography: 'paper.bib'
 
 --- 
@@ -143,6 +143,8 @@ $$emwa = \frac{c[i]}{n[i]}$$
 
 To demonstrate the differences between the CPU and GPU implementations of the EWMA calculations were performed on an array of random values \autoref{fig:ewmaCPUvsGPU}. These were generated from the same array using the respective decays for either implementation using the time constant of 50 milliseconds and a sampling rate of 2kHz. Depending on user parameters, the difference between the two outputs typically ranges in magnitude from  1e-16 to 1e-12. These discrepancies can also be attributed to differences in floating-point number accuracy between CPU and GPU calculations.
 
+# Ethics Statement
+All animal data were collected from experiments reviewed and approved by the University of British Columbia Animal Care Committee under protocols A19-0297 and A24-0049. These experiments were conducted in accordance with the guidelines established by the Canadian Council on Animal Care.
 
 # Acknowledgements
 
