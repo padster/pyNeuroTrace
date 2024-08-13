@@ -29,11 +29,11 @@ Followed by this command to install pyNeuroTrace
 pip install pyNeuroTrace
 ```
 
-For more information in on installing Cupy see the installation documentation [HERE](https://docs.cupy.dev/en/stable/install.html).
+For more information in on installing CuPy, see their [CuPy installation documentation](https://docs.cupy.dev/en/stable/install.html).
 
 ## Documentation
 
-To help get started using 'pyNeuroTrace', please read the documentation. The full documentation for this software is available [HERE](https://padster.github.io/pyNeuroTrace/).
+To help get started using 'pyNeuroTrace', full documentation of the software and available modules and methods is available at our [pyNeuroTrace github.io site](https://padster.github.io/pyNeuroTrace/).
 
 ## Vizualization
 
