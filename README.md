@@ -31,6 +31,10 @@ pip install pyNeuroTrace
 
 For more information in on installing Cupy see the installation documentation [HERE](https://docs.cupy.dev/en/stable/install.html).
 
+## Documentation
+
+To help get started using 'pyNeuroTrace', please read the documentation. The full documentation for this software is available [HERE](https://padster.github.io/pyNeuroTrace/).
+
 ## Vizualization
 
 Probably the most useful section of pyNeuroTrace, there are a number of visualization functions provided to help display the trace data in easy to understand formats. For more details, and visual examples of what is available, please consult the [README](https://github.com/padster/pyNeuroTrace/tree/master/pyneurotrace) next to viz.py.
