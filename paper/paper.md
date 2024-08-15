@@ -103,7 +103,7 @@ One of the in-built visualizations is specific to the data structure generated b
 
 For individual or small numbers of activity traces, `pyNeuroTrace` has a line plot feature \autoref{fig:traces}. This is an ideal option for inspecting the shape of events, which may be difficult to appreciate from the colormaps in the heatmap visualization. Dotted lines are plotted vertically across the traces of neural activity to indicate when stimulus presentation occurred during an experiment.  
 
-![Six traces from neuron cell bodies imaged *in vivo* with a SLAP2 microscope. Tectal cells were bulk loaded with CAL-590-AM, a calcium senstive dye. Plotting individual traces better highlights the event shape \label{fig:traces}](docs/img/pynt_lineplot_cal590.png)
+![Six traces from neuron cell bodies imaged *in vivo* with a SLAP2 microscope. Tectal cells were bulk loaded with CAL-590-AM, a calcium sensitive dye. Plotting individual traces better highlights the event shape \label{fig:traces}](docs/img/pynt_lineplot_cal590.png)
 
 Additionally, if a record of stimulus or trigger times is provided `pyNeuroTrace` can plot the average evoked response in a recording. \autoref{fig:AvgResponse} shows the average evoked response to a full-field OFF and ON stimuli from the data in \autoref{fig:heatmap}. This graph shows the evoked synaptic weights differ for the different visual stimuli presented to the animal. 
 
